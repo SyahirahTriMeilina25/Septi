@@ -24,7 +24,6 @@ return new class extends Migration
             $table->unsignedBigInteger('prodi_id');
             $table->unsignedBigInteger('konsentrasi_id');
             $table->unsignedBigInteger('role_id');
-            $table->enum('status_alumni', ['aktif', 'alumni'])->default('aktif');
             $table->text('google_access_token')->nullable();
             $table->text('google_refresh_token')->nullable();
             $table->integer('google_token_expires_in')->nullable();
