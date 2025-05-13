@@ -48,15 +48,7 @@ return new class extends Migration {
             $table->string('lokasi_pekerjaan_provinsi')->nullable(); // f5-a1
             $table->string('lokasi_pekerjaan_kabupaten')->nullable(); // f5-a2
 
-            $table->enum('jenis_perusahaan', [
-                'instansi_pemerintah',
-                'bumn_bumd',
-                'institusi_multilateral',
-                'organisasi_non_profit',
-                'perusahaan_swasta',
-                'wirausaha_sendiri',
-                'lainnya'
-            ])->nullable(); // f11-01
+            $table->unsignedTinyInteger('jenis_perusahaan')->nullable(); // f11-01
             $table->string('jenis_perusahaan_lainnya')->nullable(); // f11-02 (isian jika pilih "lainnya")
 
             $table->string('nama_perusahaan')->nullable(); // f5b
@@ -70,28 +62,14 @@ return new class extends Migration {
             $table->date('studi_lanjut_tanggal_masuk')->nullable(); // f18d
 
             // Sumber pembiayaan kuliah
-            $table->enum('sumber_pembiayaan_kuliah', [
-                'biaya_sendiri_keluarga',
-                'beasiswa_adik',
-                'beasiswa_bidikmisi',
-                'beasiswa_ppa',
-                'beasiswa_afirmasi',
-                'beasiswa_perusahaan_swasta',
-                'lainnya'
-            ])->nullable(); //f12-01
-
-            $table->string('sumber_pembiayaan_kuliah_lainnya')->nullable(); //f12-02             
+            $table->unsignedTinyInteger('sumber_pembiayaan_kuliah')->nullable(); // f12-01
+            $table->string('sumber_pembiayaan_kuliah_lainnya')->nullable();      // f12-02
 
             // Kesesuaian bidang studi dan pekerjaan
-            $table->enum('hubungan_studi_pekerjaan', ['sangat_erat', 'erat', 'cukup_erat', 'kurang_erat', 'tidak_sama_sekali'])->nullable(); // f14
+            $table->unsignedTinyInteger('hubungan_studi_pekerjaan')->nullable(); // f14
 
             // f15 - Tingkat pendidikan yang paling sesuai dengan pekerjaan saat ini
-            $table->enum('pendidikan_sesuai_pekerjaan', [
-                'setingkat_lebih_tinggi',
-                'tingkat_yang_sama',
-                'setingkat_lebih_rendah',
-                'tidak_perlu_pendidikan_tinggi'
-            ])->nullable();
+            $table->unsignedTinyInteger('pendidikan_sesuai_pekerjaan')->nullable(); // f15
 
             // f17 - Tingkat kompetensi saat lulus (A) dan saat ini (B)
             $table->tinyInteger('kompetensi_etika_lulus')->nullable(); // f1761
@@ -116,20 +94,20 @@ return new class extends Migration {
             $table->tinyInteger('kompetensi_pengembangan_diri_saat_ini')->nullable(); // f1774
 
             // --------------------->
-            // KUISIONER OPSIONAL
+            // KUISIONER LAINNYA
             // --------------------->
 
             // f2 - Penekanan metode pembelajaran (opsional)
-            $table->enum('penekanan_perkuliahan', ['sangat_besar', 'besar', 'cukup_besar', 'kurang', 'tidak_sama_sekali'])->nullable(); // f21
-            $table->enum('penekanan_demontrasi', ['sangat_besar', 'besar', 'cukup_besar', 'kurang', 'tidak_sama_sekali'])->nullable(); // f22
-            $table->enum('penekanan_proyek_riset', ['sangat_besar', 'besar', 'cukup_besar', 'kurang', 'tidak_sama_sekali'])->nullable(); // f23
-            $table->enum('penekanan_magang', ['sangat_besar', 'besar', 'cukup_besar', 'kurang', 'tidak_sama_sekali'])->nullable(); // f24
-            $table->enum('penekanan_praktikum', ['sangat_besar', 'besar', 'cukup_besar', 'kurang', 'tidak_sama_sekali'])->nullable(); // f25
-            $table->enum('penekanan_kerja_lapangan', ['sangat_besar', 'besar', 'cukup_besar', 'kurang', 'tidak_sama_sekali'])->nullable(); // f26
-            $table->enum('penekanan_diskusi', ['sangat_besar', 'besar', 'cukup_besar', 'kurang', 'tidak_sama_sekali'])->nullable(); // f27
+            $table->tinyInteger('penekanan_perkuliahan')->nullable(); // f21
+            $table->tinyInteger('penekanan_demontrasi')->nullable(); // f22
+            $table->tinyInteger('penekanan_proyek_riset')->nullable(); // f23
+            $table->tinyInteger('penekanan_magang')->nullable(); // f24
+            $table->tinyInteger('penekanan_praktikum')->nullable(); // f25
+            $table->tinyInteger('penekanan_kerja_lapangan')->nullable(); // f26
+            $table->tinyInteger('penekanan_diskusi')->nullable(); // f27
 
             // f301 - Kapan mulai mencari pekerjaan
-            $table->enum('waktu_mulai_mencari_kerja', ['sebelum_lulus', 'sesudah_lulus', 'tidak_mencari'])->nullable(); // f301
+            $table->tinyInteger('waktu_mulai_mencari_kerja')->nullable(); // f301
             $table->integer('bulan_sebelum_lulus_mencari_kerja')->nullable(); // f302 (jika pilih sebelum lulus)
             $table->integer('bulan_setelah_lulus_mencari_kerja')->nullable(); // f303 (jika pilih sesudah lulus)
             
@@ -155,28 +133,13 @@ return new class extends Migration {
             $table->integer('jumlah_instansi_merespons')->nullable(); // f7
             $table->integer('jumlah_instansi_wawancara')->nullable(); // f7a
 
-            // f9 - Situasi saat ini
-            $table->enum('situasi_saat_ini', [
-                'melanjutkan_kuliah',     // f901
-                'menikah',                // f902
-                'sibuk_keluarga',         // f903
-                'mencari_pekerjaan',      // f904
-                'lainnya'                 // f905
-            ])->nullable();
-            
+            // f901- f905 - Situasi saat ini
+            $table->tinyInteger('situasi_saat_ini')->nullable();
             $table->string('situasi_saat_ini_lainnya')->nullable(); // f906
 
             // f10 - Aktif mencari pekerjaan selama 4 minggu terakhir
-            $table->enum('aktif_mencari_pekerjaan_4_minggu', [
-                'tidak',
-                'tidak_menunggu_lamaran',
-                'akan_mulai_bekerja',
-                'belum_pasti_bekerja',
-                'lainnya'
-            ])->nullable(); // f1001
-            
+            $table->tinyInteger('aktif_mencari_pekerjaan_4_minggu')->nullable(); // f1001
             $table->string('aktif_mencari_pekerjaan_lainnya')->nullable(); // f1002
-
 
             // f16 - Alasan mencari pekerjaan
             $table->boolean('alasan_pekerjaan_sesuai_saat_ini')->default(0); // f16-01
@@ -195,31 +158,7 @@ return new class extends Migration {
             $table->string('alasan_lainnya_isi')->nullable(); // f16-14
 
             // f19 - Beasiswa
-            $table->enum('beasiswa_masa_kuliah', [
-                'adik',
-                'bidikmisi_kipk',
-                'ppa',
-                'afirmasi_dikti',
-                'bbm',
-                'prestasi_ekstrakurikuler',
-                'slta_fkip',
-                'bidikmisi_pemprov',
-                'bhakti_negeri',
-                'bansos',
-                'tanoto',
-                'bank_indonesia',
-                'karya_salemba_empat',
-                'yayasan_salim',
-                'pt_djarum',
-                'lazis_pln',
-                'baznas_pusat',
-                'baznas_kampar',
-                'pt_chevron',
-                'rapp',
-                'ptpn_v',
-                'lainnya'
-            ])->nullable();
-            
+            $table->tinyInteger('beasiswa_masa_kuliah')->nullable(); // f1901-1922
             $table->string('beasiswa_lainnya')->nullable(); 
 
             // f20 - Organisasi

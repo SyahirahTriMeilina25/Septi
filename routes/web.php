@@ -85,6 +85,8 @@ Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () 
         Route::get('/google/connect', 'connect')->name('mahasiswa.google.connect');
         Route::get('/google/callback', 'callback')->name('mahasiswa.google.callback');
     });
+
+    Route::get('/alumni', [MahasiswaController::class, 'get_alumni_view'])->name('mahasiswa.alumni');
 });
 
 // Route untuk dosen

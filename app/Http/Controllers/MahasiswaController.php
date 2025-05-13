@@ -217,4 +217,13 @@ class MahasiswaController extends Controller
             ], 500);
         }
     }
+
+    public function get_alumni_view()
+    {
+        $user = Auth::guard('mahasiswa')->user();
+
+        return view('alumni.mahasiswa.alumni')->with([
+            'user' => $user
+        ]);
+    }
 }
