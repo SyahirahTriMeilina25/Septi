@@ -22,15 +22,19 @@
                         5 => 'Tidak Sama Sekali'
                     ] as $value => $label)
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" 
+                            <input class="form-check-input @error('penekanan_perkuliahan') is-invalid @enderror" type="radio" 
                                    name="penekanan_perkuliahan" 
                                    id="penekanan_perkuliahan_{{ $value }}" 
-                                   value="{{ $value }}">
+                                   value="{{ $value }}"
+                                   {{ old('penekanan_perkuliahan', $alumni->penekanan_perkuliahan ?? null) == $value ? 'checked' : '' }}>
                             <label class="form-check-label" for="penekanan_perkuliahan_{{ $value }}">
                                 [{{ $value }}] {{ $label }}
                             </label>
                         </div>
                     @endforeach
+                    @error('penekanan_perkuliahan')
+                        <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="mb-4">
@@ -44,16 +48,19 @@
                         5 => 'Tidak Sama Sekali'
                     ] as $value => $label)
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" 
+                            <input class="form-check-input @error('penekanan_demontrasi') is-invalid @enderror" type="radio" 
                                    name="penekanan_demontrasi" 
                                    id="penekanan_demontrasi_{{ $value }}" 
                                    value="{{ $value }}"
-                                   @if(old('penekanan_demontrasi') == $value) checked @endif>
+                                   {{ old('penekanan_demontrasi', $alumni->penekanan_demontrasi ?? null) == $value ? 'checked' : '' }}>
                             <label class="form-check-label" for="penekanan_demontrasi_{{ $value }}">
                                 [{{ $value }}] {{ $label }}
                             </label>
                         </div>
                     @endforeach
+                    @error('penekanan_demontrasi')
+                        <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="mb-4">
@@ -67,16 +74,19 @@
                         5 => 'Tidak Sama Sekali'
                     ] as $value => $label)
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" 
+                            <input class="form-check-input @error('penekanan_proyek_riset') is-invalid @enderror" type="radio" 
                                    name="penekanan_proyek_riset" 
                                    id="penekanan_proyek_riset_{{ $value }}" 
                                    value="{{ $value }}"
-                                   @if(old('penekanan_proyek_riset') == $value) checked @endif>
+                                   {{ old('penekanan_proyek_riset', $alumni->penekanan_proyek_riset ?? null) == $value ? 'checked' : '' }}>
                             <label class="form-check-label" for="penekanan_proyek_riset_{{ $value }}">
                                 [{{ $value }}] {{ $label }}
                             </label>
                         </div>
                     @endforeach
+                    @error('penekanan_proyek_riset')
+                        <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="mb-4">
@@ -90,16 +100,19 @@
                         5 => 'Tidak Sama Sekali'
                     ] as $value => $label)
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" 
+                            <input class="form-check-input @error('penekanan_magang') is-invalid @enderror" type="radio" 
                                    name="penekanan_magang" 
                                    id="penekanan_magang_{{ $value }}" 
                                    value="{{ $value }}"
-                                   @if(old('penekanan_magang') == $value) checked @endif>
+                                   {{ old('penekanan_magang', $alumni->penekanan_magang ?? null) == $value ? 'checked' : '' }}>
                             <label class="form-check-label" for="penekanan_magang_{{ $value }}">
                                 [{{ $value }}] {{ $label }}
                             </label>
                         </div>
                     @endforeach
+                    @error('penekanan_magang')
+                        <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="mb-4">
@@ -113,16 +126,19 @@
                         5 => 'Tidak Sama Sekali'
                     ] as $value => $label)
                         <div class="form-check">
-                            <input class="form-check-input" type="radio"
+                            <input class="form-check-input @error('penekanan_praktikum') is-invalid @enderror" type="radio"
                                    name="penekanan_praktikum"
                                    id="penekanan_praktikum_{{ $value }}"
                                    value="{{ $value }}"
-                                   @if(old('penekanan_praktikum') == $value) checked @endif>
+                                   {{ old('penekanan_praktikum', $alumni->penekanan_praktikum ?? null) == $value ? 'checked' : '' }}>
                             <label class="form-check-label" for="penekanan_praktikum_{{ $value }}">
                                 [{{ $value }}] {{ $label }}
                             </label>
                         </div>
                     @endforeach
+                    @error('penekanan_praktikum')
+                        <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="mb-4">
@@ -136,16 +152,19 @@
                         5 => 'Tidak Sama Sekali'
                     ] as $value => $label)
                         <div class="form-check">
-                            <input class="form-check-input" type="radio"
+                            <input class="form-check-input @error('penekanan_kerja_lapangan') is-invalid @enderror" type="radio"
                                    name="penekanan_kerja_lapangan"
                                    id="penekanan_kerja_lapangan_{{ $value }}"
                                    value="{{ $value }}"
-                                   @if(old('penekanan_kerja_lapangan') == $value) checked @endif>
+                                   {{ old('penekanan_kerja_lapangan', $alumni->penekanan_kerja_lapangan ?? null) == $value ? 'checked' : '' }}>
                             <label class="form-check-label" for="penekanan_kerja_lapangan_{{ $value }}">
                                 [{{ $value }}] {{ $label }}
                             </label>
                         </div>
                     @endforeach
+                    @error('penekanan_kerja_lapangan')
+                        <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="mb-4">
@@ -159,38 +178,41 @@
                         5 => 'Tidak Sama Sekali'
                     ] as $value => $label)
                         <div class="form-check">
-                            <input class="form-check-input" type="radio"
+                            <input class="form-check-input @error('penekanan_diskusi') is-invalid @enderror" type="radio"
                                    name="penekanan_diskusi"
                                    id="penekanan_diskusi_{{ $value }}"
                                    value="{{ $value }}"
-                                   @if(old('penekanan_diskusi') == $value) checked @endif>
+                                   {{ old('penekanan_diskusi', $alumni->penekanan_diskusi ?? null) == $value ? 'checked' : '' }}>
                             <label class="form-check-label" for="penekanan_diskusi_{{ $value }}">
                                 [{{ $value }}] {{ $label }}
                             </label>
                         </div>
                     @endforeach
+                    @error('penekanan_diskusi')
+                        <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                    @enderror
                 </div>
             </div>
 
             <!-- Pertanyaan 1: Kapan mulai mencari pekerjaan -->
             @php
-                $waktuMencariKerjaOptions = [
-                    1 => [
-                        'label' => 'Kira-kira <input type="number" class="form-control d-inline-block" style="width: 80px;" name="bulan_sebelum_lulus" disabled> bulan sebelum lulus',
-                        'value' => 1,
-                        'has_input' => true
-                    ],
-                    2 => [
-                        'label' => 'Kira-kira <input type="number" class="form-control d-inline-block" style="width: 80px;" name="bulan_sesudah_lulus" disabled> bulan sesudah lulus',
-                        'value' => 2,
-                        'has_input' => true
-                    ],
-                    3 => [
-                        'label' => 'Saya tidak mencari kerja',
-                        'value' => 3,
-                        'has_input' => false
-                    ]
-                ];
+            $waktuMencariKerjaOptions = [
+                1 => [
+                    'label' => "Kira-kira <input type=\"number\" class=\"form-control d-inline-block @error('bulan_sebelum_lulus') is-invalid @enderror\" style=\"width: 80px;\" name=\"bulan_sebelum_lulus\" value=\"".old('bulan_sebelum_lulus', $alumni->bulan_sebelum_lulus_mencari_kerja ?? null)."\" ". (old('waktu_mulai_mencari_kerja', $alumni->waktu_mulai_mencari_kerja ?? null) == 1 ? '' : 'disabled') ."> bulan sebelum lulus",
+                    'value' => 1,
+                    'has_input' => true
+                ],
+                2 => [
+                    'label' => "Kira-kira <input type=\"number\" class=\"form-control d-inline-block @error('bulan_sesudah_lulus') is-invalid @enderror\" style=\"width: 80px;\" name=\"bulan_sesudah_lulus\" value=\"".old('bulan_sesudah_lulus', $alumni->bulan_setelah_lulus_mencari_kerja ?? null)."\" ". (old('waktu_mulai_mencari_kerja', $alumni->waktu_mulai_mencari_kerja ?? null) == 2 ? '' : 'disabled') ."> bulan sesudah lulus",
+                    'value' => 2,
+                    'has_input' => true
+                ],
+                3 => [
+                    'label' => 'Saya tidak mencari kerja',
+                    'value' => 3,
+                    'has_input' => false
+                ]
+            ];
             @endphp
 
             <div class="mb-4">
@@ -205,13 +227,23 @@
                             name="waktu_mulai_mencari_kerja"
                             id="waktu_mulai_mencari_kerja_{{ $key }}"
                             value="{{ $option['value'] }}"
-                            @if(old('waktu_mulai_mencari_kerja') == $option['value']) checked @endif
-                            onchange="toggleMulaiCariKerja()">
+                            {{ old('waktu_mulai_mencari_kerja', $alumni->waktu_mulai_mencari_kerja ?? null) == $option['value'] ? 'checked' : '' }}
+                            onchange="handleMulaiCariKerjaChange()">
                         <label class="form-check-label" for="waktu_mulai_mencari_kerja_{{ $key }}">
                             [{{ $key }}] {!! $option['label'] !!}
                         </label>
                     </div>
                 @endforeach
+                
+                @error('waktu_mulai_mencari_kerja')
+                    <div class="text-danger" style="font-size: 11px">{{ $message }}</div>
+                @enderror
+                @error('bulan_sebelum_lulus')
+                    <div class="text-danger" style="font-size: 11px">{{ $message }}</div>
+                @enderror
+                @error('bulan_sesudah_lulus')
+                    <div class="text-danger" style="font-size: 11px">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- Pertanyaan 2: Bagaimana mencari pekerjaan -->
@@ -219,6 +251,15 @@
                 <label class="form-label fw-bold text-danger">
                     Bagaimana anda mencari pekerjaan tersebut? Jawaban bisa lebih dari satu <span class="text-danger">*</span>
                 </label>
+            
+                @php
+                    // Define error message for minimum selection
+                    $minSelectionError = $errors->first('cara_cari_kerja_min');
+                @endphp
+            
+                @if($minSelectionError)
+                    <div class="text-danger mb-2" style="font-size: 11px">{{ $minSelectionError }}</div>
+                @endif
             
                 @foreach ([
                     'cari_kerja_iklan_koran' => '[1] Melalui iklan di koran/majalah, brosur',
@@ -238,24 +279,34 @@
                     'cari_kerja_lainnya_pilih' => '[15] Lainnya:'
                 ] as $value => $label)
                     <div class="form-check {{ $value === 'cari_kerja_lainnya_pilih' ? 'mb-2' : '' }}">
-                        <input class="form-check-input" type="checkbox" 
-                            name="cara_cari_kerja[{{ $value }}]" 
+                        <input class="form-check-input @error($value) is-invalid @enderror" type="checkbox" 
+                            name="{{ $value }}" 
                             id="cara_cari_kerja_{{ $loop->iteration }}" 
                             value="1" 
-                            @if(old('cara_cari_kerja.' . $value)) checked @endif
+                            {{ old($value, $alumni->$value ?? null) ? 'checked' : '' }}
                             @if($value === 'cari_kerja_lainnya_pilih') 
                                 onchange="document.getElementById('cara_cari_kerja_lainnya').disabled = !this.checked"
                             @endif>
                         <label class="form-check-label" for="cara_cari_kerja_{{ $loop->iteration }}">
                             {{ $label }}
                         </label>
-                        @if($value === 'cari_kerja_lainnya_pilih')
-                            <div class="mb-3">
-                                <input type="text" class="form-control mt-2" id="cara_cari_kerja_lainnya"
-                                    name="cara_cari_kerja_lainnya_isi" placeholder="Sebutkan cara lainnya..." disabled>
-                            </div>
-                        @endif
                     </div>
+                    
+                    @if($value === 'cari_kerja_lainnya_pilih')
+                        <div>
+                            <input type="text" class="form-control mt-2 @error('cari_kerja_lainnya_isi') is-invalid @enderror" id="cara_cari_kerja_lainnya"
+                                name="cari_kerja_lainnya_isi" 
+                                value="{{ old('cari_kerja_lainnya_isi') }}"
+                                placeholder="Sebutkan cara lainnya..." 
+                                {{ old('cari_kerja_lainnya_pilih', $alumni->cari_kerja_lainnya_pilih ?? null) ? '' : 'disabled' }}>
+                            @error('cari_kerja_lainnya_isi')
+                                <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    @endif
+                    @error($value)
+                        <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                    @enderror
                 @endforeach
             </div>            
 
@@ -265,11 +316,14 @@
                     Berapa perusahaan/instansi/institusi yang sudah anda lamar (lewat surat atau e-mail) sebelum
                     anda memperoleh pekerjaan pertama? <span class="text-danger">*</span>
                 </label>
-                <div class="input-group mb-3">
-                    <input type="number" class="form-control" name="jumlah_instansi_dilamar"
-                        min="0" placeholder="Jumlah perusahaan/instansi/institusi">
+                <div class="input-group">
+                    <input type="number" class="form-control @error('jumlah_instansi_dilamar') is-invalid @enderror" name="jumlah_instansi_dilamar"
+                        min="0" placeholder="Jumlah perusahaan/instansi/institusi" value="{{ old('jumlah_instansi_dilamar', $alumni->jumlah_instansi_dilamar ?? null) }}">
                     <span class="input-group-text">perusahaan/instansi/institusi</span>
                 </div>
+                @error('jumlah_instansi_dilamar')
+                    <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="mb-4">
@@ -277,11 +331,14 @@
                     Berapa banyak perusahaan/instansi/institusi yang merespons lamaran anda? <span
                         class="text-danger">*</span>
                 </label>
-                <div class="input-group mb-3">
-                    <input type="number" class="form-control" name="jumlah_instansi_merespons"
-                        min="0" placeholder="Jumlah perusahaan/instansi/institusi">
+                <div class="input-group">
+                    <input type="number" class="form-control @error('jumlah_instansi_merespons') is-invalid @enderror" name="jumlah_instansi_merespons"
+                        min="0" placeholder="Jumlah perusahaan/instansi/institusi" value="{{ old('jumlah_instansi_merespons', $alumni->jumlah_instansi_merespons ?? null) }}">
                     <span class="input-group-text">perusahaan/instansi/institusi</span>
                 </div>
+                @error('jumlah_instansi_merespons')
+                    <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="mb-4">
@@ -289,11 +346,14 @@
                     Berapa banyak perusahaan/instansi/institusi yang mengundang anda untuk wawancara? <span
                         class="text-danger">*</span>
                 </label>
-                <div class="input-group mb-3">
-                    <input type="number" class="form-control" name="jumlah_instansi_wawancara"
-                        min="0" placeholder="Jumlah perusahaan/instansi/institusi">
+                <div class="input-group">
+                    <input type="number" class="form-control @error('jumlah_instansi_wawancara') is-invalid @enderror" name="jumlah_instansi_wawancara"
+                        min="0" placeholder="Jumlah perusahaan/instansi/institusi" value="{{ old('jumlah_instansi_wawancara', $alumni->jumlah_instansi_wawancara ?? null) }}">
                     <span class="input-group-text">perusahaan/instansi/institusi</span>
                 </div>
+                @error('jumlah_instansi_wawancara')
+                    <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                @enderror
             </div>
 
             {{-- Pertanyaan situasi saat ini --}}
@@ -314,24 +374,30 @@
             
                 @foreach ($options as $value => $label)
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" 
+                        <input class="form-check-input @error('situasi_saat_ini') is-invalid @enderror" type="radio" 
                             name="situasi_saat_ini" 
                             id="situasi_saat_ini_{{ $value }}" 
                             value="{{ $value }}"
                             onclick="toggleSituasiSaatIniLainnya(this)"
-                            {{ old('situasi_saat_ini') == $value ? 'checked' : '' }}>
+                            {{ old('situasi_saat_ini', $alumni->situasi_saat_ini ?? null) == $value ? 'checked' : '' }}>
                         <label class="form-check-label" for="situasi_saat_ini_{{ $value }}">
                             [{{ $value }}] {{ $label }}
                         </label>
                         @if ($value === 5)
-                            <input type="text" class="form-control mt-2" id="input_lainnya"
+                            <input type="text" class="form-control mt-2 @error('situasi_saat_ini_lainnya') is-invalid @enderror" id="input_lainnya"
                                 name="situasi_saat_ini_lainnya"
                                 placeholder="Tuliskan situasi saat ini lainnya..."
-                                value="{{ old('situasi_saat_ini_lainnya') }}"
-                                {{ old('situasi_saat_ini') == 5 ? '' : 'disabled' }}>
+                                value="{{ old('situasi_saat_ini_lainnya', $alumni->situasi_saat_ini_lainnya ?? null) }}"
+                                {{ old('situasi_saat_ini', $alumni->situasi_saat_ini ?? null) == 5 ? '' : 'disabled' }}>
+                            @error('situasi_saat_ini_lainnya')
+                                <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                            @enderror
                         @endif
                     </div>
                 @endforeach
+                @error('situasi_saat_ini')
+                    <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                @enderror
             </div>         
 
             <!-- Pertanyaan Pencarian Kerja Aktif -->
@@ -352,25 +418,31 @@
             
                 @foreach ($options as $value => $label)
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" 
+                        <input class="form-check-input @error('aktif_mencari_pekerjaan_4_minggu') is-invalid @enderror" type="radio" 
                             name="aktif_mencari_pekerjaan_4_minggu" 
                             id="aktif_mencari_pekerjaan_{{ $value }}" 
                             value="{{ $value }}"
                             onclick="toggleAktifMencariLainnya(this)"
-                            {{ old('aktif_mencari_pekerjaan') == $value ? 'checked' : '' }}>
+                            {{ old('aktif_mencari_pekerjaan_4_minggu', $alumni->aktif_mencari_pekerjaan_4_minggu ?? null) == $value ? 'checked' : '' }}>
                         <label class="form-check-label" for="aktif_mencari_pekerjaan_{{ $value }}">
                             [{{ $value }}] {{ $label }}
                         </label>
                         @if ($value === 5)
-                            <input type="text" class="form-control mt-2" 
+                            <input type="text" class="form-control mt-2 @error('aktif_mencari_pekerjaan_lainnya') is-invalid @enderror" 
                                 id="input_aktif_mencari_pekerjaan_lainnya"
                                 name="aktif_mencari_pekerjaan_lainnya"
-                                value="{{ old('aktif_mencari_pekerjaan_lainnya') }}"
+                                value="{{ old('aktif_mencari_pekerjaan_lainnya', $alumni->aktif_mencari_pekerjaan_lainnya ?? null) }}"
                                 placeholder="Sebutkan lainnya di sini..."
-                                {{ old('aktif_mencari_pekerjaan') == 5 ? '' : 'disabled' }}>
+                                {{ old('aktif_mencari_pekerjaan_4_minggu', $alumni->aktif_mencari_pekerjaan_4_minggu ?? null) == 5 ? '' : 'disabled' }}>
+                            @error('aktif_mencari_pekerjaan_lainnya')
+                                <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                            @enderror
                         @endif
                     </div>
                 @endforeach
+                @error('aktif_mencari_pekerjaan_4_minggu')
+                    <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                @enderror
             </div>
             
             <!-- Alasan mengambil pekerjaan tidak sesuai pendidikan -->
@@ -398,12 +470,12 @@
                 @endphp
             
                 @foreach($alasanOptions as $field => $label)
-                    <div class="form-check {{ $field === 'alasan_lainnya_pilih' ? 'mb-2' : '' }}">
-                        <input class="form-check-input" type="checkbox" 
+                    <div class="form-check">
+                        <input class="form-check-input @error($field) is-invalid @enderror" type="checkbox" 
                             name="{{ $field }}" 
                             id="{{ $field }}" 
                             value="1"
-                            @if(old($field)) checked @endif
+                            {{ old($field, $alumni->$field ?? null) ? 'checked' : '' }}
                             @if($field === 'alasan_lainnya_pilih') 
                                 onchange="document.getElementById('alasan_lainnya_isi').disabled = !this.checked"
                             @endif>
@@ -411,15 +483,21 @@
                             {{ $label }}
                         </label>
                         @if($field === 'alasan_lainnya_pilih')
-                            <div class="mb-3">
-                                <input type="text" class="form-control mt-2" id="alasan_lainnya_isi" 
+                            <div>
+                                <input type="text" class="form-control mt-2 @error('alasan_lainnya_isi') is-invalid @enderror" id="alasan_lainnya_isi" 
                                     name="alasan_lainnya_isi" 
-                                    value="{{ old('alasan_lainnya_isi') }}"
+                                    value="{{ old('alasan_lainnya_isi', $alumni->alasan_lainnya_isi ?? null) }}"
                                     placeholder="Sebutkan alasan lainnya..." 
-                                    @if(!old('alasan_lainnya_pilih')) disabled @endif>
+                                    {{ old('alasan_lainnya_pilih', $alumni->alasan_lainnya_pilih ?? null) ? '' : 'disabled' }}>
+                                @error('alasan_lainnya_isi')
+                                    <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                                @enderror
                             </div>
                         @endif
                     </div>
+                    @error($field)
+                        <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                    @enderror
                 @endforeach
             </div>
 
@@ -458,24 +536,30 @@
             
                 @foreach($beasiswaOptions as $value => $label)
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" 
+                        <input class="form-check-input @error('beasiswa_masa_kuliah') is-invalid @enderror" type="radio" 
                             name="beasiswa_masa_kuliah" 
                             id="beasiswa_masa_kuliah_{{ $value }}" 
                             value="{{ $value }}"
-                            onclick="toggleBeasiswaLainnya(this)">
-                            @if(old('beasiswa_masa_kuliah') == $value) checked @endif
+                            onclick="toggleBeasiswaLainnya(this)"
+                            {{ old('beasiswa_masa_kuliah', $alumni->beasiswa_masa_kuliah ?? null) == $value ? 'checked' : '' }}>
                         <label class="form-check-label" for="beasiswa_masa_kuliah_{{ $value }}">
                             [{{ $value }}] {{ $label }}
                         </label>
                         @if($value == 22)
-                            <input type="text" class="form-control mt-2" id="beasiswa_lainnya"
+                            <input type="text" class="form-control mt-2 @error('beasiswa_lainnya') is-invalid @enderror" id="beasiswa_lainnya"
                                 name="beasiswa_lainnya" 
-                                value="{{ old('beasiswa_lainnya') }}"
+                                value="{{ old('beasiswa_lainnya', $alumni->beasiswa_lainnya ?? null) }}"
                                 placeholder="Sebutkan lainnya di sini..."
-                                @if(old('beasiswa_masa_kuliah') != 22) disabled @endif>
+                                {{ old('beasiswa_masa_kuliah', $alumni->beasiswa_masa_kuliah ?? null) == 22 ? '' : 'disabled' }}>
+                            @error('beasiswa_lainnya')
+                                <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                            @enderror
                         @endif
                     </div>
                 @endforeach
+                @error('beasiswa_masa_kuliah')
+                    <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                @enderror
             </div>
 
             <!-- Organisasi selama masa kuliah -->
@@ -505,12 +589,12 @@
                 @endphp
             
                 @foreach($organisasiOptions as $field => $label)
-                    <div class="form-check {{ $field === 'org_lainnya_pilih' ? 'mb-2' : '' }}">
-                        <input class="form-check-input" type="checkbox" 
+                    <div class="form-check">
+                        <input class="form-check-input @error($field) is-invalid @enderror" type="checkbox" 
                             name="{{ $field }}" 
                             id="{{ $field }}" 
                             value="1"
-                            @if(old($field)) checked @endif
+                            {{ old($field, $alumni->$field ?? null) ? 'checked' : '' }}
                             @if($field === 'org_lainnya_pilih') 
                                 onchange="
                                     document.getElementById('org_lainnya_isi').disabled = !this.checked;
@@ -521,28 +605,35 @@
                             {{ $label }}
                         </label>
                         @if($field === 'org_lainnya_pilih')
-                            <div class="mb-3">
-                                <input type="text" class="form-control mt-2" id="org_lainnya_isi" 
+                            <div>
+                                <input type="text" class="form-control mt-2 @error('org_lainnya_isi') is-invalid @enderror" id="org_lainnya_isi" 
                                     name="org_lainnya_isi" 
-                                    value="{{ old('org_lainnya_isi') }}"
+                                    value="{{ old('org_lainnya_isi', $alumni->org_lainnya_isi ?? null) }}"
                                     placeholder="Sebutkan organisasi lainnya..." 
-                                    @if(!old('org_lainnya_pilih')) disabled @endif>
+                                    {{ old('org_lainnya_pilih', $alumni->org_lainnya_pilih ?? null) ? '' : 'disabled' }}>
+                                @error('org_lainnya_isi')
+                                    <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                                @enderror
                             </div>
                         @endif
                     </div>
+                    @error($field)
+                        <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                    @enderror
                 @endforeach
             </div>
 
             {{-- Saran dan Masukan --}}
             <div>
                 <label class="form-label fw-bold text-danger">
-                    Demi kemajuan Universitas RIau, silahkan berikan saran atau masukan anda <span
-                        class="text-danger">*</span>
+                    Demi kemajuan Universitas Riau, silahkan berikan saran atau masukan anda <span class="text-danger">*</span>
                 </label>
-                <textarea class="form-control rounded-3" name="saran_untuk_universitas" rows="4"
-                    placeholder="Tulis masukan dan saran Anda..."></textarea>
+                <textarea class="form-control rounded-3 @error('saran_untuk_universitas') is-invalid @enderror" name="saran_untuk_universitas" rows="4"
+                    placeholder="Tulis masukan dan saran Anda...">{{ old('saran_untuk_universitas', $alumni->saran_untuk_universitas ?? null) }}</textarea>
+                @error('saran_untuk_universitas')
+                    <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                @enderror
             </div>
         </div>
     </div>
-
 </div>

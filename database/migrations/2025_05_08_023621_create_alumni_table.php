@@ -16,6 +16,8 @@ return new class extends Migration {
             $table->foreign('user_nim')->references('nim')->on('mahasiswas')->onDelete('cascade');
 
             // biodata
+            $table->string('nama');
+            $table->string('email');
             $table->string('alamat')->nullable();
             $table->string('no_telepon');
             $table->string('deskripsi_diri')->nullable();
@@ -29,20 +31,20 @@ return new class extends Migration {
 
             // data form alumni
             $table->integer('kode_pt');
-            $table->string('fakultas');
+            $table->string('fakultas')->nullable();
             $table->integer('kode_prodi');
-            $table->string('tahun_lulus');
-            $table->integer('nomor_induk_kependudukan');
-            $table->integer('nomor_pokok_wajib_pajak');
+            $table->string('tahun_lulus')->nullable();
+            $table->string('nomor_induk_kependudukan');
+            $table->string('nomor_pokok_wajib_pajak')->nullable();
 
             // --------------------->
             // KUISIONER WAJIB
             // --------------------->
 
-            $table->enum('status_saat_ini', ['bekerja', 'wirausaha', 'melanjutkan_pendidikan', 'tidak_kerja_mencari', 'tidak_kerja_tidak_mencari']); // f8
+            $table->tinyInteger('status_saat_ini')->nullable(); // f8
 
-            $table->boolean('bekerja_6_bulan_setelah_lulus'); // f5-04
-            $table->integer('bulan_mendapat_pekerjaan'); // f5-02
+            $table->boolean('bekerja_6_bulan_setelah_lulus')->nullable(); // f5-04
+            $table->integer('bulan_mendapat_pekerjaan')->nullable(); // f5-02
             $table->integer('pendapatan_per_bulan')->nullable(); // f5-05
 
             $table->string('lokasi_pekerjaan_provinsi')->nullable(); // f5-a1

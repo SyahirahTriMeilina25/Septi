@@ -87,6 +87,9 @@ Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () 
     });
 
     Route::get('/alumni', [MahasiswaController::class, 'get_alumni_view'])->name('mahasiswa.alumni');
+    Route::post('/alumni-step1', [MahasiswaController::class, 'biodata_step_store'])->name('mahasiswa.alumni-step1');
+    Route::post('/alumni-step2', [MahasiswaController::class, 'kuisioner_wajib_step_store'])->name('mahasiswa.alumni-step2');
+    Route::post('/alumni-step3', [MahasiswaController::class, 'kuisioner_lainnya_step_store'])->name('mahasiswa.alumni-step3');
 });
 
 // Route untuk dosen

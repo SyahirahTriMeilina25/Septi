@@ -8,106 +8,123 @@
     <!-- Stepper Header -->
     <div class="d-flex justify-content-between mb-4 mx-md-5 mx-lg-6 mx-xl-7 px-4">
         <a href="{{ request()->url() }}?tab=form-alumni&step=1" 
-            class="btn btn-step rounded-circle d-flex justify-content-center align-items-center {{ $activeStep == '1' ? 'active' : '' }}"
+            class="btn btn-step rounded-circle d-flex justify-content-center align-items-center 
+            {{ $activeStep == '1' ? 'active' : ($isStep1Complete ? 'completed' : '') }}"
             style="width: 50px; height: 50px; padding: 0;"
             data-bs-toggle="tooltip" title="Biodata Alumni">
             <i class="bi bi-person-badge" style="font-size: 15px;"></i>
         </a>
 
-        <div class="stepper-line flex-grow-1 mx-4 align-self-center"></div>
+        <div class="stepper-line flex-grow-1 mx-4 align-self-center 
+            {{ $isStep1Complete ? 'line-completed' : '' }}"></div>
 
-        <a href="{{ request()->url() }}?tab=form-alumni&step=2" 
-            class="btn btn-step rounded-circle d-flex justify-content-center align-items-center {{ $activeStep == '2' ? 'active' : '' }}"
-            style="width: 50px; height: 50px; padding: 0;"
-            data-bs-toggle="tooltip" title="Kuisioner Wajib">
-            <i class="bi bi-clipboard-check" style="font-size: 15px;"></i>
-        </a>
+        @if ($isStep1Complete)
+            <a href="{{ request()->url() }}?tab=form-alumni&step=2" 
+                class="btn btn-step rounded-circle d-flex justify-content-center align-items-center 
+                {{ $activeStep == '2' ? 'active' : ($isStep2Complete ? 'completed' : '') }}"
+                style="width: 50px; height: 50px; padding: 0;"
+                data-bs-toggle="tooltip" title="Kuisioner Wajib">
+                <i class="bi bi-clipboard-check" style="font-size: 15px;"></i>
+            </a>
+        @else
+            <span class="btn btn-step rounded-circle d-flex justify-content-center align-items-center"
+                style="width: 50px; height: 50px; padding: 0; cursor: not-allowed;"
+                data-bs-toggle="tooltip" title="Selesaikan Biodata terlebih dahulu">
+                <i class="bi bi-clipboard-check" style="font-size: 15px;"></i>
+            </span>  
+        @endif
 
-        <div class="stepper-line flex-grow-1 mx-4 align-self-center"></div>
+        <div class="stepper-line flex-grow-1 mx-4 align-self-center
+            {{ $isStep2Complete ? 'line-completed' : '' }}"></div>
 
-        <a href="{{ request()->url() }}?tab=form-alumni&step=3" 
-            class="btn btn-step rounded-circle d-flex justify-content-center align-items-center {{ $activeStep == '3' ? 'active' : '' }}"
-            style="width: 50px; height: 50px; padding: 0;"
-            data-bs-toggle="tooltip" title="Kuisioner Lainnya">
-            <i class="bi bi-pencil-square" style="font-size: 15px;"></i>
-        </a>         
+        @if ($isStep2Complete)
+            <a href="{{ request()->url() }}?tab=form-alumni&step=3" 
+                class="btn btn-step rounded-circle d-flex justify-content-center align-items-center 
+                {{ $activeStep == '3' ? 'active' : ($isStep3Complete ? 'completed' : '') }}"
+                style="width: 50px; height: 50px; padding: 0;"
+                data-bs-toggle="tooltip" title="Kuisioner Lainnya">
+                <i class="bi bi-pencil-square" style="font-size: 15px;"></i>
+            </a>    
+        @else
+            <span class="btn btn-step rounded-circle d-flex justify-content-center align-items-center"
+                style="width: 50px; height: 50px; padding: 0; cursor: not-allowed;"
+                data-bs-toggle="tooltip" title="Selesaikan Kuisioner Wajib terlebih dahulu">
+                <i class="bi bi-pencil-square" style="font-size: 15px;"></i>
+            </span>     
+        @endif
     </div>
 
-    <!-- Alerts -->
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show rounded-4" role="alert">
-            <strong>Berhasil!</strong> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="alert alert-danger alert-dismissible fade show rounded-4" role="alert">
-            <strong>Gagal!</strong> {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    @if ($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show rounded-4" role="alert">
-            <strong>Gagal!</strong> Terdapat kesalahan pada form.
-            <ul class="mb-0 mt-2">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    <form action="" method="POST" id="alumniForm">
-        @csrf
-    
+    <div id="alumniForm">
         <div class="tab-content">
             {{-- Step 1 --}}
             @if ($activeStep == '1')
-                <div class="tab-pane fade show active">
+                <form action="{{ route('mahasiswa.alumni-step1') }}" method="POST" class="tab-pane fade show active">
+                    @csrf
                     @include('alumni.mahasiswa.form-alumni.biodata-form')
                     
                     <div class="mt-4 d-flex justify-content-end">
-                        <a href="{{ request()->url() }}?tab=form-alumni&step=2" class="btn btn-primary px-4 py-2">
+                        <button type="submit" class="btn btn-primary px-4 py-2">
                             Selanjutnya
                             <i class="bi bi-arrow-right me-2"></i>
-                        </a>
-                    </div>
-                </div>
-            @elseif ($activeStep == '2')
-                <div class="tab-pane fade show active">
-                    @include('alumni.mahasiswa.form-alumni.kuisioner-wajib')
-    
-                    <div class="mt-4 d-flex justify-content-between">
-                        <a href="{{ request()->url() }}?tab=form-alumni&step=1" class="btn btn-secondary px-4 py-2">
-                            <i class="bi bi-arrow-left me-2"></i>
-                            Sebelumnya
-                        </a>
-                        <a href="{{ request()->url() }}?tab=form-alumni&step=3" class="btn btn-primary px-4 py-2">
-                            Selanjutnya
-                            <i class="bi bi-arrow-right me-2"></i>
-                        </a>
-                    </div>
-                </div>
-            @elseif ($activeStep == '3')
-                <div class="tab-pane fade show active">
-                    @include('alumni.mahasiswa.form-alumni.kuisioner-lainnya')
-    
-                    <div class="mt-4 d-flex justify-content-start">
-                        <a href="{{ request()->url() }}?tab=form-alumni&step=2" class="btn btn-secondary px-4 py-2">
-                            <i class="bi bi-arrow-left me-2"></i>       
-                            Sebelumnya
-                        </a>
-                        <button type="submit" class="btn btn-success px-4 py-2 ms-auto">
-                            Submit
                         </button>
                     </div>
-                </div>
+                </form>
+            @elseif ($activeStep == '2')
+                @if ($isStep1Complete)
+                    <form action="{{ route('mahasiswa.alumni-step2') }}" method="POST" class="tab-pane fade show active">
+                        @csrf
+                        @include('alumni.mahasiswa.form-alumni.kuisioner-wajib')
+        
+                        <div class="mt-4 d-flex justify-content-between">
+                            <a href="{{ request()->url() }}?tab=form-alumni&step=1" class="btn btn-secondary px-4 py-2">
+                                <i class="bi bi-arrow-left me-2"></i>
+                                Sebelumnya
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4 py-2">
+                                Selanjutnya
+                                <i class="bi bi-arrow-right me-2"></i>
+                            </button>
+                        </div>
+                    </form>
+                @else
+                    <div class="alert alert-danger">
+                        Silakan lengkapi data biodata di step 1 terlebih dahulu
+                    </div>
+                    <script>
+                        setTimeout(function() {
+                            window.location.href = "{{ request()->url() }}?tab=form-alumni&step=1";
+                        }, 2000);
+                    </script>
+                @endif
+            @elseif ($activeStep == '3')
+                @if ($isStep2Complete)
+                    <form id="alumniStep3Form" action="{{ route('mahasiswa.alumni-step3') }}" method="POST" class="tab-pane fade show active">
+                        @csrf
+                        @include('alumni.mahasiswa.form-alumni.kuisioner-lainnya')
+                    
+                        <div class="mt-4 d-flex justify-content-start">
+                            <a href="{{ request()->url() }}?tab=form-alumni&step=2" class="btn btn-secondary px-4 py-2">
+                                <i class="bi bi-arrow-left me-2"></i>       
+                                Sebelumnya
+                            </a>
+                            <button type="button" id="submitBtn" class="btn btn-success px-4 py-2 ms-auto">
+                                Submit
+                            </button>
+                        </div>
+                    </form>
+                @else
+                    <div class="alert alert-danger">
+                        Silakan lengkapi data biodata di step 2 terlebih dahulu
+                    </div>
+                    <script>
+                        setTimeout(function() {
+                            window.location.href = "{{ request()->url() }}?tab=form-alumni&step=1";
+                        }, 2000);
+                    </script>
+                @endif
             @endif
         </div>
-    </form>
+    </div>
     
 </div>
 
@@ -142,10 +159,55 @@
         height: 2px;
         background-color: #e2e8f0;
     }
+
+    .btn-step.active {
+        background-color: var(--primary-color);
+        color: white;
+        box-shadow: 0 5px 15px rgba(30, 64, 175, 0.2);
+    }
+
+    .btn-step.completed {
+        background-color: var(--success-color);
+        color: white;
+        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.15);
+    }
+
+    .stepper-line {
+        height: 2px;
+        background-color: #e2e8f0;
+        transition: all 0.3s ease;
+    }
+
+    .stepper-line.line-completed {
+        background-color: var(--success-color);
+        height: 3px;
+    }
 </style>
 
 <script>
-     document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('submitBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            Swal.fire({
+                title: "Apakah kamu yakin ingin submit?",
+                text: "Data kuisioner akan disimpan dan tidak dapat diubah lagi.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Ya, submit!",
+                cancelButtonText: "Batal"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Submit form secara normal (bukan AJAX)
+                    document.getElementById('alumniStep3Form').submit();
+                }
+            });
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         tooltipTriggerList.forEach(function (tooltipTriggerEl) {
             new bootstrap.Tooltip(tooltipTriggerEl)
@@ -155,17 +217,41 @@
     function handleStatusChange(selected) {
         const kerjaSection = document.getElementById('kerja-details');
         const wiraswastaSection = document.getElementById('wiraswasta-details');
+        const posisiSelect = document.getElementById('posisi_wirausaha');
 
-        if (selected === 1 || selected === 2) {
-            kerjaSection.style.display = 'block';
+        const showKerja = (selected === 1 || selected === 2);
+        const showWiraswasta = (selected === 2);
 
-            // Show wiraswasta-specific section only if wiraswasta is selected
-            wiraswastaSection.style.display = selected === 2 ? 'block' : 'none';
-        } else {
-            kerjaSection.style.display = 'none';
-            wiraswastaSection.style.display = 'none';
+        kerjaSection.style.display = showKerja ? 'block' : 'none';
+        wiraswastaSection.style.display = showWiraswasta ? 'block' : 'none';
+
+        if (!showKerja) {
+            const inputs = kerjaSection.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.type === 'radio' || input.type === 'checkbox') {
+                    input.checked = false;
+                } else {
+                    input.value = '';
+                }
+
+                input.disabled = false;
+
+                if (['bulan_mendapat_pekerjaan_ya', 'pendapatan_per_bulan', 'bulan_mendapat_pekerjaan_tidak'].includes(input.id)) {
+                    input.disabled = true;
+                }
+            });
+        }
+
+        if (selected === 1 && posisiSelect) {
+            posisiSelect.value = ''; 
         }
     }
+
+    // Inisialisasi saat load
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectedStatus = document.querySelector('input[name="status_saat_ini"]:checked');
+        if (selectedStatus) handleStatusChange(parseInt(selectedStatus.value));
+    });
 
     function toggleKerjaCepat() {
         const isYa = document.getElementById('bekerja_6_bulan_setelah_lulus_1').checked;
@@ -183,17 +269,35 @@
         }
     }
 
-    function toggleMulaiCariKerja() {
-        const selectedValue = document.querySelector('input[name="waktu_mulai_mencari_kerja"]:checked').value;
+    function toggleMulaiCariKerja(shouldFocus = false) {
+        const selectedValue = document.querySelector('input[name="waktu_mulai_mencari_kerja"]:checked')?.value;
         
-        document.querySelector('input[name="bulan_sebelum_lulus"]').disabled = true;
-        document.querySelector('input[name="bulan_sesudah_lulus"]').disabled = true;
+        const inputSebelum = document.querySelector('input[name="bulan_sebelum_lulus"]');
+        const inputSesudah = document.querySelector('input[name="bulan_sesudah_lulus"]');
+        
+        inputSebelum.disabled = true;
+        inputSesudah.disabled = true;
+        
+        inputSebelum.classList.remove('is-invalid');
+        inputSesudah.classList.remove('is-invalid');
         
         if (selectedValue == 1) {
-            document.querySelector('input[name="bulan_sebelum_lulus"]').disabled = false;
+            inputSebelum.disabled = false;
+            if (shouldFocus) inputSebelum.focus(); 
         } else if (selectedValue == 2) {
-            document.querySelector('input[name="bulan_sesudah_lulus"]').disabled = false;
+            inputSesudah.disabled = false;
+            if (shouldFocus) inputSesudah.focus();
         }
+    }
+
+    // Panggil saat halaman dimuat tanpa focus
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleMulaiCariKerja(false);
+    });
+
+    // Untuk event onchange tetap dengan focus
+    function handleMulaiCariKerjaChange() {
+        toggleMulaiCariKerja(true);
     }
 
     function toggleJenisLainnya(radio) {
