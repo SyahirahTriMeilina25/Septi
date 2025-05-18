@@ -33,7 +33,7 @@ return new class extends Migration {
             $table->integer('kode_pt');
             $table->string('fakultas')->nullable();
             $table->integer('kode_prodi');
-            $table->string('tahun_lulus')->nullable();
+            $table->string('tahun_lulus');
             $table->string('nomor_induk_kependudukan');
             $table->string('nomor_pokok_wajib_pajak')->nullable();
 

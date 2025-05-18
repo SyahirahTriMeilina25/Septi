@@ -33,7 +33,8 @@ class DatabaseSeeder extends Seeder
             ProdiSeeder::class,
             KonsentrasiSeeder::class,
             DosenSeeder::class,
-            MahasiswaSeeder::class
+            MahasiswaSeeder::class,
+            AlumniSeeder::class
         ]);
     }
 }

@@ -63,7 +63,7 @@
                     @include('alumni.mahasiswa.form-alumni.biodata-form')
                     
                     <div class="mt-4 d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary px-4 py-2">
+                        <button type="submit" class="btn-gradient-success px-4 py-2">
                             Selanjutnya
                             <i class="bi bi-arrow-right me-2"></i>
                         </button>
@@ -76,11 +76,11 @@
                         @include('alumni.mahasiswa.form-alumni.kuisioner-wajib')
         
                         <div class="mt-4 d-flex justify-content-between">
-                            <a href="{{ request()->url() }}?tab=form-alumni&step=1" class="btn btn-secondary px-4 py-2">
+                            <a href="{{ request()->url() }}?tab=form-alumni&step=1" class="btn-gradient-second px-4 py-2">
                                 <i class="bi bi-arrow-left me-2"></i>
                                 Sebelumnya
                             </a>
-                            <button type="submit" class="btn btn-primary px-4 py-2">
+                            <button type="submit" class="btn-gradient-success px-4 py-2">
                                 Selanjutnya
                                 <i class="bi bi-arrow-right me-2"></i>
                             </button>
@@ -103,11 +103,11 @@
                         @include('alumni.mahasiswa.form-alumni.kuisioner-lainnya')
                     
                         <div class="mt-4 d-flex justify-content-start">
-                            <a href="{{ request()->url() }}?tab=form-alumni&step=2" class="btn btn-secondary px-4 py-2">
+                            <a href="{{ request()->url() }}?tab=form-alumni&step=2" class="btn-gradient-second px-4 py-2">
                                 <i class="bi bi-arrow-left me-2"></i>       
                                 Sebelumnya
                             </a>
-                            <button type="button" id="submitBtn" class="btn btn-success px-4 py-2 ms-auto">
+                            <button type="button" id="submitBtn" class="btn-gradient-success px-4 py-2 ms-auto">
                                 Submit
                             </button>
                         </div>
@@ -142,34 +142,23 @@
 
     /* Stepper styles */
     .btn-step {
-        background-color: var(--secondary-color);
-        color: var(--light-color);
-        border: none;
+        background-color: #e9ecef;
+        color: #6c757d;
+        border: 2px solid #dee2e6;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         transition: all 0.3s ease;
     }
 
     .btn-step.active {
-        background-color: var(--primary-color);
+        background-color: #0a2550; /* Dark navy blue for active */
         color: white;
-        box-shadow: 0 5px 15px rgba(30, 64, 175, 0.2);
-    }
-
-    .stepper-line {
-        height: 2px;
-        background-color: #e2e8f0;
-    }
-
-    .btn-step.active {
-        background-color: var(--primary-color);
-        color: white;
-        box-shadow: 0 5px 15px rgba(30, 64, 175, 0.2);
+        border-color: #0a2550;
     }
 
     .btn-step.completed {
-        background-color: var(--success-color);
+        background-color: #1e3a6d; /* Slightly lighter navy blue for completed */
         color: white;
-        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.15);
+        border-color: #1e3a6d;
     }
 
     .stepper-line {
@@ -179,8 +168,36 @@
     }
 
     .stepper-line.line-completed {
-        background-color: var(--success-color);
+        background-color: #1e3a6d;
         height: 3px;
+    }
+
+    .bg-card-gradient {
+        background: linear-gradient(to right,#3875B6, #37C3F4);
+    }
+
+    .btn-gradient-success, .btn-gradient-second {
+        background: linear-gradient(to right, #3875B6, #37C3F4);
+        border: none;
+        color: white;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        z-index: 1;
+        cursor: pointer;
+        border-radius: 12px;
+        padding: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-decoration: none;
+    }
+
+    .btn-gradient-second {
+        background: linear-gradient(to right, #00b7ae, #37C3F4);
+    }
+
+    .btn-gradient-success:hover, .btn-gradient-second:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 </style>
 

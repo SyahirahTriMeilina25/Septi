@@ -23,6 +23,9 @@
     {{-- custom logo website --}}
     <link rel="icon" href="{{ asset('images/logounri.png') }}" type="image/png">
 
+    {{-- chart js --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <!-- Page Specific Styles -->
 
     @stack('styles')
