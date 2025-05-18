@@ -224,13 +224,44 @@ class MahasiswaController extends Controller
     {
         $user = Auth::guard('mahasiswa')->user();
         $alumni = Alumni::where('user_nim', $user->nim)->first();
+        
+        // Get query parameters
+        $search = request()->get('search', '');
+        $sort = request()->get('sort', 'created_at');
+        $order = request()->get('order', 'desc');
+        $perPage = request()->get('per_page', 10);
+
+        // Query for all alumni with search and sort
+        $query = Alumni::query();
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('nama', 'like', '%'.$search.'%')
+                ->orWhere('email', 'like', '%'.$search.'%')
+                ->orWhere('tahun_lulus', 'like', '%'.$search.'%');
+            });
+        }
+
+        // Validate and apply sorting
+        $validSorts = ['nama', 'email', 'tahun_lulus', 'created_at'];
+        $sort = in_array($sort, $validSorts) ? $sort : 'created_at';
+        $order = in_array(strtolower($order), ['asc', 'desc']) ? $order : 'desc';
+
+        $allAlumni = $query->orderBy($sort, $order)
+                        ->paginate($perPage)
+                        ->appends(request()->query());
+
+        // Check if page exists, if not redirect to first page
+        if ($allAlumni->currentPage() > $allAlumni->lastPage()) {
+            return redirect(request()->fullUrlWithQuery(['page' => 1]));
+        }
 
         $provinces = json_decode(file_get_contents(resource_path('data/provinces.json')), true);
         $regencies = json_decode(file_get_contents(resource_path('data/regencies.json')), true);
 
-        // Cek kelengkapan data
+        // Check form completion status
         $isStep1Complete = $alumni && $alumni->user_nim && $alumni->nama && $alumni->email && $alumni->no_telepon && $alumni->nomor_induk_kependudukan;
-        $isStep2Complete = $alumni && $alumni->status_saat_ini && $alumni->studi_lanjut_sumber_biaya && $alumni->studi_lanjut_tanggal_masuk && $alumni->studi_lanjut_kode_pt && $alumni->studi_lanjut_program_studi && $alumni->hubungan_studi_pekerjaan && $alumni->pendidikan_sesuai_pekerjaan;
+        $isStep2Complete = $alumni && $alumni->status_saat_ini && $alumni->hubungan_studi_pekerjaan && $alumni->pendidikan_sesuai_pekerjaan;
         $isStep3Complete = $alumni && $alumni->penekanan_perkuliahan && $alumni->penekanan_demontrasi && $alumni->penekanan_proyek_riset && $alumni->penekanan_magang && $alumni->penekanan_praktikum && $alumni->penekanan_kerja_lapangan && $alumni->penekanan_diskusi && $alumni->waktu_mulai_mencari_kerja
             && $alumni->jumlah_instansi_dilamar && $alumni->jumlah_instansi_merespons && $alumni->jumlah_instansi_wawancara && $alumni->situasi_saat_ini && $alumni->aktif_mencari_pekerjaan_4_minggu && $alumni->beasiswa_masa_kuliah && $alumni->saran_untuk_universitas;
 
@@ -239,12 +270,11 @@ class MahasiswaController extends Controller
         $currentTab = request()->get('tab');
         $currentStep = request()->get('step');
 
-        // Jika semua step sudah complete, redirect ke performa-alumni
+        // Redirect logic
         if ($isAllStepsComplete && $currentTab === 'form-alumni') {
             return redirect('/alumni?tab=performa-alumni');
         }
 
-        // Logika redirect step sebelumnya
         if ($currentTab === 'form-alumni') {
             if ($isStep1Complete && $isStep2Complete && !$currentStep) {
                 return redirect('/alumni?tab=form-alumni&step=3');
@@ -255,15 +285,351 @@ class MahasiswaController extends Controller
             }
         }
 
+        // Data untuk performa alumni (hanya diambil jika tab=performa-alumni)
+        $pekerjaanUtama = [];
+        $masaTunggu = [];
+        $totalAlumni = 0;
+        $jenisPerusahaan = [];
+        $totalJenisPerusahaan = 0;
+        $tingkatTempatKerja = [];
+        $totalTingkatTempatKerja = 0;
+        $penghasilanAlumni = [];
+        $totalAlumniBekerja = 0;
+        $jabatanAlumni = [];
+        $totalAlumniWiraswasta = 0;
+        $sumberPembiayaan = [];
+        $totalSumberPembiayaan = 0;
+        $hubunganStudiPekerjaan = [];
+        $totalHubunganStudiPekerjaan = 0;
+        $pendidikanSesuaiPekerjaan = [];
+        $totalPendidikanSesuaiPekerjaan = 0;
+        $metodePembelajaran = [];
+        $kompetensiAlumni = [];
+        $kompetensiRadar = [];
+
+        if(request()->get('tab') === 'performa-alumni') {
+            // Data pekerjaan utama
+            $statusCounts = Alumni::selectRaw('status_saat_ini, COUNT(*) as count')
+                                ->groupBy('status_saat_ini')
+                                ->pluck('count', 'status_saat_ini')
+                                ->toArray();
+
+            $totalAlumni = array_sum($statusCounts);
+            
+            $pekerjaanUtama = [
+                'Bekerja (full time/part time)' => ($statusCounts[1] ?? 0) / max($totalAlumni, 1) * 100,
+                'Wiraswasta' => ($statusCounts[2] ?? 0) / max($totalAlumni, 1) * 100,
+                'Melanjutkan Pendidikan' => ($statusCounts[3] ?? 0) / max($totalAlumni, 1) * 100,
+                'Tidak Kerja tetapi sedang mencari kerja' => ($statusCounts[4] ?? 0) / max($totalAlumni, 1) * 100,
+                'Belum memungkinkan bekerja' => ($statusCounts[5] ?? 0) / max($totalAlumni, 1) * 100,
+            ];
+
+            // Data masa tunggu pekerjaan
+            $masaTungguCounts = Alumni::selectRaw('bekerja_6_bulan_setelah_lulus, COUNT(*) as count')
+                                    ->whereNotNull('bekerja_6_bulan_setelah_lulus')
+                                    ->groupBy('bekerja_6_bulan_setelah_lulus')
+                                    ->pluck('count', 'bekerja_6_bulan_setelah_lulus')
+                                    ->toArray();
+
+            $totalBekerja = array_sum($masaTungguCounts);
+            
+            $masaTunggu = [
+                '≤ 6 bulan' => ($masaTungguCounts[1] ?? 0) / max($totalBekerja, 1) * 100,
+                '> 6 bulan' => ($masaTungguCounts[0] ?? 0) / max($totalBekerja, 1) * 100,
+            ];
+
+            // Data jenis perusahaan
+            $jenisPerusahaanCounts = Alumni::selectRaw('jenis_perusahaan, COUNT(*) as count')
+                ->whereNotNull('jenis_perusahaan')
+                ->groupBy('jenis_perusahaan')
+                ->pluck('count', 'jenis_perusahaan')
+                ->toArray();
+
+            $totalJenisPerusahaan = array_sum($jenisPerusahaanCounts);
+
+            $jenisPerusahaanLabels = [
+                1 => 'Instansi pemerintah',
+                2 => 'BUMN/BUMD',
+                3 => 'Institusi/Organisasi Multilateral',
+                4 => 'Organisasi non-profit/LSM',
+                5 => 'Perusahaan swasta',
+                6 => 'Wiraswasta/perusahaan sendiri',
+                7 => 'Lainnya',
+            ];
+
+            foreach ($jenisPerusahaanLabels as $key => $label) {
+                $jenisPerusahaan[$label] = ($jenisPerusahaanCounts[$key] ?? 0) / max($totalJenisPerusahaan, 1) * 100;
+            }
+
+            // Data tingkat tempat kerja
+            $tingkatTempatKerjaCounts = Alumni::selectRaw('tingkat_tempat_kerja, COUNT(*) as count')
+                ->whereNotNull('tingkat_tempat_kerja')
+                ->groupBy('tingkat_tempat_kerja')
+                ->pluck('count', 'tingkat_tempat_kerja')
+                ->toArray();
+
+            $totalTingkatTempatKerja = array_sum($tingkatTempatKerjaCounts);
+
+            $tingkatTempatKerjaLabels = [
+                'Lokal/wilayah/wiraswasta tidak berbadan hukum',
+                'Nasional/wiraswasta berbadan hukum',
+                'Multinasional/internasional',
+            ];
+
+            foreach ($tingkatTempatKerjaLabels as $label) {
+                $tingkatTempatKerja[$label] = ($tingkatTempatKerjaCounts[$label] ?? 0) / max($totalTingkatTempatKerja, 1) * 100;
+            }
+
+            // Data penghasilan alumni
+            $alumniBekerja = Alumni::where('status_saat_ini', 1)
+                ->orWhere('status_saat_ini', 2) 
+                ->whereNotNull('pendapatan_per_bulan')
+                ->get();
+
+            $totalAlumniBekerja = $alumniBekerja->count();
+
+            $penghasilanAlumni = [
+                '< 3 Juta' => ['jumlah' => 0, 'persentase' => 0],
+                '3 Juta - 5 Juta' => ['jumlah' => 0, 'persentase' => 0],
+                '> 5 Juta' => ['jumlah' => 0, 'persentase' => 0]
+            ];
+            
+            if ($totalAlumniBekerja > 0) {
+                foreach ($alumniBekerja as $alumni) {
+                    $gaji = $alumni->pendapatan_per_bulan;
+                    
+                    if ($gaji < 3000000) {
+                        $penghasilanAlumni['< 3 Juta']['jumlah']++;
+                    } elseif ($gaji >= 3000000 && $gaji <= 5000000) {
+                        $penghasilanAlumni['3 Juta - 5 Juta']['jumlah']++;
+                    } else {
+                        $penghasilanAlumni['> 5 Juta']['jumlah']++;
+                    }
+                }
+            
+                foreach ($penghasilanAlumni as $kategori => $data) {
+                    $penghasilanAlumni[$kategori]['persentase'] = ($data['jumlah'] / $totalAlumniBekerja) * 100;
+                }
+            }
+
+            // Label jabatan alumni
+            $jabatanLabels = [
+                'Founder' => 'Founder',
+                'Co-Founder' => 'Co-Founder',
+                'CEO/Direktur' => 'CEO/Direktur',
+                'Manager' => 'Manager',
+                'Supervisor' => 'Supervisor',
+                'Staff' => 'Staff',
+                'Owner' => 'Owner',
+            ];
+
+            // Hitung jumlah alumni wiraswasta per jabatan
+            $jabatanCounts = Alumni::where('status_saat_ini', 2)
+                ->whereNotNull('posisi_wirausaha')
+                ->selectRaw("CASE 
+                                WHEN posisi_wirausaha IN ('Founder', 'Co-Founder', 'CEO/Direktur', 'Manager', 'Supervisor', 'Staff', 'Owner') 
+                                THEN posisi_wirausaha 
+                            END as jabatan, COUNT(*) as count")
+                ->groupBy('jabatan')
+                ->pluck('count', 'jabatan')
+                ->toArray();
+
+            $totalJabatan = array_sum($jabatanCounts);
+
+            // Hitung persentase
+            $jabatanAlumni = [];
+            foreach ($jabatanLabels as $key => $label) {
+                $jabatanAlumni[$label] = ($jabatanCounts[$key] ?? 0) / max($totalJabatan, 1) * 100;
+            }
+
+            // Data sumber pembiayaan kuliah
+            $sumberPembiayaanCounts = Alumni::selectRaw('sumber_pembiayaan_kuliah, COUNT(*) as count')
+                ->whereNotNull('sumber_pembiayaan_kuliah')
+                ->groupBy('sumber_pembiayaan_kuliah')
+                ->pluck('count', 'sumber_pembiayaan_kuliah')
+                ->toArray();
+
+            $totalSumberPembiayaan = array_sum($sumberPembiayaanCounts);
+
+            $sumberPembiayaanLabels = [
+                1 => 'Biaya Sendiri / Keluarga',
+                2 => 'Beasiswa ADIK',
+                3 => 'Beasiswa BIDIKMISI',
+                4 => 'Beasiswa PPA',
+                5 => 'Beasiswa AFIRMASI',
+                6 => 'Beasiswa Perusahaan/Swasta',
+                7 => 'Lainnya',
+            ];
+
+            foreach ($sumberPembiayaanLabels as $key => $label) {
+                $sumberPembiayaan[$label] = ($sumberPembiayaanCounts[$key] ?? 0) / max($totalSumberPembiayaan, 1) * 100;
+            }
+
+            // Data hubungan studi dan pekerjaan
+            $hubunganStudiCounts = Alumni::selectRaw('hubungan_studi_pekerjaan, COUNT(*) as count')
+                ->whereNotNull('hubungan_studi_pekerjaan')
+                ->groupBy('hubungan_studi_pekerjaan')
+                ->pluck('count', 'hubungan_studi_pekerjaan')
+                ->toArray();
+
+            $totalHubunganStudiPekerjaan = array_sum($hubunganStudiCounts);
+
+            $hubunganStudiLabels = [
+                1 => 'Sangat Erat',
+                2 => 'Erat',
+                3 => 'Cukup Erat',
+                4 => 'Kurang Erat',
+                5 => 'Tidak Sama Sekali',
+            ];
+
+            foreach ($hubunganStudiLabels as $key => $label) {
+                $hubunganStudiPekerjaan[$label] = ($hubunganStudiCounts[$key] ?? 0) / max($totalHubunganStudiPekerjaan, 1) * 100;
+            }
+
+            // Data dari kolom pendidikan_sesuai_pekerjaan
+            $pendidikanSesuaiCounts = Alumni::selectRaw('pendidikan_sesuai_pekerjaan, COUNT(*) as count')
+                ->whereNotNull('pendidikan_sesuai_pekerjaan')
+                ->groupBy('pendidikan_sesuai_pekerjaan')
+                ->pluck('count', 'pendidikan_sesuai_pekerjaan')
+                ->toArray();
+
+            $totalPendidikanSesuaiPekerjaan = array_sum($pendidikanSesuaiCounts);
+
+            $pendidikanSesuaiLabels = [
+                1 => 'Setingkat Lebih Tinggi',
+                2 => 'Tingkat yang Sama',
+                3 => 'Setingkat Lebih Rendah',
+                4 => 'Tidak Perlu Pendidikan Tinggi',
+            ];
+
+            foreach ($pendidikanSesuaiLabels as $key => $label) {
+                $pendidikanSesuaiPekerjaan[$label] = ($pendidikanSesuaiCounts[$key] ?? 0) / max($totalPendidikanSesuaiPekerjaan, 1) * 100;
+            }
+
+            // Data dari kolom penilaian
+            $skalaPenilaian = [
+                1 => 'Sangat Besar',
+                2 => 'Besar',
+                3 => 'Cukup Besar', 
+                4 => 'Kurang',
+                5 => 'Tidak Sama Sekali'
+            ];
+
+            // Daftar metode pembelajaran yang akan diambil datanya
+            $daftarMetode = [
+                'penekanan_perkuliahan' => 'Perkuliahan',
+                'penekanan_demontrasi' => 'Demonstrasi',
+                'penekanan_proyek_riset' => 'Partisipasi dalam proyek riset',
+                'penekanan_magang' => 'Magang',
+                'penekanan_praktikum' => 'Praktikum',
+                'penekanan_kerja_lapangan' => 'Kerja Lapangan',
+                'penekanan_diskusi' => 'Diskusi'
+            ];
+
+            // Inisialisasi array untuk menyimpan data
+            $metodePembelajaran = [
+                'labels' => array_values($daftarMetode),
+                'datasets' => []
+            ];
+
+            // Untuk setiap skala penilaian, buat dataset
+            foreach ($skalaPenilaian as $nilai => $label) {
+                $dataset = [
+                    'label' => $label,
+                    'data' => [],
+                ];
+
+                foreach ($daftarMetode as $field => $namaMetode) {
+                    $count = Alumni::where($field, $nilai)->count();
+                    $dataset['data'][] = $count;
+                }
+
+                $metodePembelajaran['datasets'][] = $dataset;
+            }
+
+            $totalPerMetode = [];
+            foreach ($daftarMetode as $field => $namaMetode) {
+                $totalPerMetode[$field] = Alumni::whereNotNull($field)->count();
+            }
+
+            // Data dari kolom kompetensi
+            $daftarKompetensi = [
+                'etika' => 'Etika',
+                'keahlian_bidang' => 'Keahlian berdasarkan bidang ilmu',
+                'bahasa_inggris' => 'Bahasa Inggris',
+                'ti' => 'Penggunaan Teknologi Informasi',
+                'komunikasi' => 'Komunikasi',
+                'kerjasama' => 'Kerja sama tim', 
+                'pengembangan_diri' => 'Pengembangan Diri'
+            ];
+
+            // Hitung rata-rata untuk setiap kompetensi
+            $kompetensiAlumni = [];
+            foreach ($daftarKompetensi as $key => $label) {
+                $avgLulus = Alumni::whereNotNull("kompetensi_{$key}_lulus")->avg("kompetensi_{$key}_lulus");
+                $avgSaatIni = Alumni::whereNotNull("kompetensi_{$key}_saat_ini")->avg("kompetensi_{$key}_saat_ini");
+
+                $kompetensiAlumni[] = [
+                    'kompetensi' => $label,
+                    'rata_lulus' => round($avgLulus, 2),
+                    'rata_saat_ini' => round($avgSaatIni, 2),
+                    'selisih' => round($avgSaatIni - $avgLulus, 2)
+                ];
+            }
+
+            // Data untuk chart radar - gunakan semua kompetensi
+            $kompetensiRadar = [
+                'labels' => array_values($daftarKompetensi),
+                'rata_lulus' => [],
+                'rata_saat_ini' => []
+            ];
+
+            // Mengambil data untuk radar chart dengan urutan yang sama dengan labels
+            foreach ($daftarKompetensi as $key => $label) {
+                $avgLulus = Alumni::whereNotNull("kompetensi_{$key}_lulus")->avg("kompetensi_{$key}_lulus");
+                $avgSaatIni = Alumni::whereNotNull("kompetensi_{$key}_saat_ini")->avg("kompetensi_{$key}_saat_ini");
+
+                $kompetensiRadar['rata_lulus'][] = round($avgLulus, 2);
+                $kompetensiRadar['rata_saat_ini'][] = round($avgSaatIni, 2);
+            }
+        }
+
         return view('alumni.mahasiswa.alumni')->with([
             'user' => $user,
             'alumni' => $alumni,
+            'allAlumni' => $allAlumni,
             'provinces' => $provinces,
             'regencies' => $regencies,
             'isStep1Complete' => $isStep1Complete,
             'isStep2Complete' => $isStep2Complete,
             'isStep3Complete' => $isStep3Complete,
-            'isAllStepsComplete' => $isAllStepsComplete
+            'isAllStepsComplete' => $isAllStepsComplete,
+            'currentSort' => $sort,
+            'currentOrder' => $order,
+            'currentSearch' => $search,
+            'currentPerPage' => $perPage,
+            'currentTab' => $currentTab,
+            'currentStep' => $currentStep,
+            'pekerjaanUtama' => $pekerjaanUtama,
+            'masaTunggu' => $masaTunggu,
+            'totalAlumni' => $totalAlumni,
+            'jenisPerusahaan' => $jenisPerusahaan,
+            'totalJenisPerusahaan' => $totalJenisPerusahaan,
+            'tingkatTempatKerja' => $tingkatTempatKerja,
+            'totalTingkatTempatKerja' => $totalTingkatTempatKerja,
+            'penghasilanAlumni' => $penghasilanAlumni,
+            'totalAlumniBekerja' => $totalAlumniBekerja,
+            'jabatanAlumni' => $jabatanAlumni,
+            'totalAlumniWiraswasta' => $totalAlumniWiraswasta,
+            'sumberPembiayaan' => $sumberPembiayaan,
+            'totalSumberPembiayaan' => $totalSumberPembiayaan,
+            'hubunganStudiPekerjaan' => $hubunganStudiPekerjaan,
+            'totalHubunganStudiPekerjaan' => $totalHubunganStudiPekerjaan,
+            'pendidikanSesuaiPekerjaan' => $pendidikanSesuaiPekerjaan,
+            'totalPendidikanSesuaiPekerjaan' => $totalPendidikanSesuaiPekerjaan,
+            'metodePembelajaran' => $metodePembelajaran,
+            'kompetensiAlumni' => $kompetensiAlumni,
+            'kompetensiRadar' => $kompetensiRadar
         ]);
     }
 
@@ -277,6 +643,7 @@ class MahasiswaController extends Controller
                 'no_telepon' => ['required', 'numeric', 'digits_between:10,15'],
                 'nomor_induk_kependudukan' => ['required', 'digits:16'],
                 'nomor_pokok_wajib_pajak' => ['nullable', 'digits_between:15,16'],
+                'tahun_lulus' => ['required', 'integer', 'digits:4'],
             ], [
                 'user_nim.required' => 'NIM wajib diisi.',
                 'user_nim.numeric' => 'NIM harus berupa angka.',
@@ -288,7 +655,10 @@ class MahasiswaController extends Controller
                 'no_telepon.digits_between' => 'Nomor telepon harus antara 10 sampai 15 digit.',
                 'nomor_induk_kependudukan.required' => 'NIK wajib diisi.',
                 'nomor_induk_kependudukan.digits' => 'NIK harus 16 digit.',
-                'nomor_pokok_wajib_pajak.digits_between' => 'NPWP harus antara 15 sampai 16 digit.'
+                'nomor_pokok_wajib_pajak.digits_between' => 'NPWP harus antara 15 sampai 16 digit.',
+                'tahun_lulus.required' => 'Tahun lulus wajib diisi.',
+                'tahun_lulus.integer' => 'Tahun lulus harus berupa angka.',
+                'tahun_lulus.digits' => 'Tahun lulus harus 4 digit.',
             ]);
 
             $alumni = Alumni::where('user_nim', $validated['user_nim'])->first();
@@ -305,6 +675,7 @@ class MahasiswaController extends Controller
             $alumni->nomor_pokok_wajib_pajak = $validated['nomor_pokok_wajib_pajak'] ?? null;
             $alumni->kode_pt = '001017';
             $alumni->kode_prodi = '55202';
+            $alumni->tahun_lulus = $validated['tahun_lulus'];
             $alumni->save();
 
             return redirect('/alumni?tab=form-alumni&step=2')->with('success', 'Berhasil menyimpan biodata.');
@@ -351,10 +722,10 @@ class MahasiswaController extends Controller
                 'nama_perusahaan' => 'nullable|string',
                 'tingkat_tempat_kerja' => 'nullable|string',
                 'posisi_wirausaha' => 'nullable|string',
-                'studi_lanjut_sumber_biaya' => 'required|string',
-                'studi_lanjut_tanggal_masuk' => 'required|date',
-                'studi_lanjut_kode_pt' => 'required|string',
-                'studi_lanjut_program_studi' => 'required|string',
+                'studi_lanjut_sumber_biaya' => 'nullable|string',
+                'studi_lanjut_tanggal_masuk' => 'nullable|date',
+                'studi_lanjut_kode_pt' => 'nullable|string',
+                'studi_lanjut_program_studi' => 'nullable|string',
                 'sumber_pembiayaan_kuliah' => 'required|integer',
                 'sumber_pembiayaan_kuliah_lainnya' => 'nullable|string',
                 'hubungan_studi_pekerjaan' => 'required|integer|between:1,5',
@@ -384,7 +755,7 @@ class MahasiswaController extends Controller
                 $rules['bulan_mendapat_pekerjaan_ya'] = 'required|integer|between:1,6';
                 $rules['pendapatan_per_bulan'] = 'required|numeric';
             } elseif ($request->input('bekerja_6_bulan_setelah_lulus') === '0') {
-                $rules['bulan_mendapat_pekerjaan_tidak'] = 'required|integer|between:1,6';
+                $rules['bulan_mendapat_pekerjaan_tidak'] = 'required|integer';
             }
 
             // Validasi jika jenis perusahaan adalah lainnya
@@ -415,7 +786,6 @@ class MahasiswaController extends Controller
                 'bulan_mendapat_pekerjaan_ya.between' => 'Bulan mendapat pekerjaan harus antara 1 sampai 6.',
                 'bulan_mendapat_pekerjaan_tidak.required' => 'Bulan mendapat pekerjaan wajib diisi jika Anda memilih "Tidak".',
                 'bulan_mendapat_pekerjaan_tidak.integer' => 'Bulan mendapat pekerjaan harus berupa angka.',
-                'bulan_mendapat_pekerjaan_tidak.between' => 'Bulan mendapat pekerjaan harus antara 1 sampai 6.',
                 'pendapatan_per_bulan.required' => 'Pendapatan per bulan wajib diisi jika Anda memilih "Ya".',
                 'pendapatan_per_bulan.numeric' => 'Pendapatan per bulan harus berupa angka.',
                 'lokasi_pekerjaan_provinsi.required' => 'Lokasi pekerjaan provinsi wajib diisi.',
@@ -432,13 +802,9 @@ class MahasiswaController extends Controller
                 'tingkat_tempat_kerja.string' => 'Tingkat tempat kerja harus berupa teks.',
                 'posisi_wirausaha.required' => 'Posisi wirausaha wajib diisi.',
                 'posisi_wirausaha.string' => 'Posisi wirausaha harus berupa teks.',
-                'studi_lanjut_sumber_biaya.required' => 'Sumber biaya studi lanjut wajib diisi.',
                 'studi_lanjut_sumber_biaya.string' => 'Sumber biaya studi lanjut harus berupa teks.',
-                'studi_lanjut_tanggal_masuk.required' => 'Tanggal masuk studi lanjut wajib diisi.',
                 'studi_lanjut_tanggal_masuk.date' => 'Tanggal masuk studi lanjut harus berupa tanggal.',
-                'studi_lanjut_kode_pt.required' => 'Kode PT studi lanjut wajib diisi.',
                 'studi_lanjut_kode_pt.string' => 'Kode PT studi lanjut harus berupa teks.',
-                'studi_lanjut_program_studi.required' => 'Program studi studi lanjut wajib diisi.',
                 'studi_lanjut_program_studi.string' => 'Program studi studi lanjut harus berupa teks.',
                 'sumber_pembiayaan_kuliah.required' => 'Sumber pembiayaan kuliah wajib diisi.',
                 'sumber_pembiayaan_kuliah.integer' => 'Sumber pembiayaan kuliah harus berupa angka.',

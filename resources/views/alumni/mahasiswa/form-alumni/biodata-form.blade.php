@@ -1,8 +1,8 @@
 <!-- Step 1: Biodata -->
 <div class="form-step active" id="biodata-step">
-    <div class="card border-0 shadow-sm rounded-4 mb-4">
-        <div class="card-header bg-gradient-primary-subtle p-3">
-            <h5 class="card-title mb-0 fw-bold">Biodata Alumni</h5>
+    <div class="card border-0 shadow-lg rounded-4 mb-4">
+        <div class="card-header bg-card-gradient p-4 rounded-top-4">
+            <h5 class="card-title mb-0 fw-bold text-white">Biodata Alumni</h5>
         </div>
         <div class="card-body p-4">
             <div class="row">
@@ -58,7 +58,7 @@
             </div>
 
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-6 mb-3">
                     <label for="nomor_induk_kependudukan" class="form-label fw-bold">Nomor Induk Kependudukan
                         (NIK) <span class="text-danger">*</span></label>
                     <input type="text" class="form-control rounded-3 @error('nomor_induk_kependudukan') is-invalid @enderror" id="nomor_induk_kependudukan"
@@ -70,7 +70,7 @@
                         <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
                     @enderror
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6 mb-3">
                     <label for="nomor_pokok_wajib_pajak" class="form-label fw-bold">Nomor Pokok Wajib Pajak
                         (NPWP)</label>
                     <input type="text" class="form-control rounded-3 @error('nomor_pokok_wajib_pajak') is-invalid @enderror" id="nomor_pokok_wajib_pajak"
@@ -78,6 +78,18 @@
                         value="{{ old('nomor_pokok_wajib_pajak', optional($alumni)->nomor_pokok_wajib_pajak) }}"
                         title="NPWP harus 15 atau 16 digit angka">
                     @error('nomor_pokok_wajib_pajak')
+                        <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="tahun_lulus" class="form-label fw-bold">Tahun Lulus<span class="text-danger">*</span></label>
+                    <input type="number" class="form-control rounded-3 @error('tahun_lulus') is-invalid @enderror" id="tahun_lulus"
+                        name="tahun_lulus" 
+                        value="{{ old('tahun_lulus', optional($alumni)->tahun_lulus) }}">
+                    @error('tahun_lulus')
                         <span class="text-danger" style="font-size: 11px">{{ $message }}</span>
                     @enderror
                 </div>
