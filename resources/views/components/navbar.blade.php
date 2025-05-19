@@ -25,6 +25,17 @@
                            href="{{ url('/usulanbimbingan') }}">RESERVASI</a>
                     @endif
                 </li>
+                <li class="nav-item">
+                    @if(Auth::guard('dosen')->check())
+                        <a class="nav-link {{ Request::is('alumni*') ? 'active' : '' }}" 
+                           style="font-weight: bold;" 
+                           href="{{ url('/alumni') }}">ALUMNI</a>
+                    @else
+                        <a class="nav-link {{ Request::is('alumni*') ? 'active' : '' }}" 
+                           style="font-weight: bold;" 
+                           href="{{ url('/alumni') }}">ALUMNI</a>
+                    @endif
+                </li>
                 {{-- <li class="nav-item">
                     @if(Auth::guard('dosen')->check())
                         <a class="nav-link {{ Request::routeIs('pesan.*') ? 'active' : '' }}" 
@@ -36,6 +47,17 @@
                         href="{{ route('pesan.dashboardkonsultasi') }}">KONSULTASI</a>
                     @endif
                 </li> --}}
+                <li class="nav-item">
+                    @if(Auth::guard('dosen')->check())
+                        <a class="nav-link {{ Request::is('persetujuan') || Request::is('masukkanjadwal') || Request::is('riwayatdosen') || Request::is('editusulan') || Request::is('terimausulanbimbingan') ? 'active' : '' }}" 
+                           style="font-weight: bold;" 
+                           href="{{ url('/persetujuan') }}">ALUMNI</a>
+                    @else
+                        <a class="nav-link {{ Request::is('alumni') || Request::is('') || Request::is('') || Request::is('') ? 'active' : '' }}" 
+                           style="font-weight: bold;" 
+                           href="{{ url('/alumni?tab=form-alumni') }}">ALUMNI</a>
+                    @endif
+                </li>
             </ul>
             <div class="d-flex align-items-center">
                 <div class="dropdown">
