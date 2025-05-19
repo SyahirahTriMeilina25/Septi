@@ -25,6 +25,17 @@
                            href="{{ url('/usulanbimbingan') }}">RESERVASI</a>
                     @endif
                 </li>
+                <li class="nav-item">
+                    @if(Auth::guard('dosen')->check())
+                        <a class="nav-link {{ Request::is('alumni*') ? 'active' : '' }}" 
+                           style="font-weight: bold;" 
+                           href="{{ url('/alumni') }}">ALUMNI</a>
+                    @else
+                        <a class="nav-link {{ Request::is('alumni*') ? 'active' : '' }}" 
+                           style="font-weight: bold;" 
+                           href="{{ url('/alumni') }}">ALUMNI</a>
+                    @endif
+                </li>
                 {{-- <li class="nav-item">
                     @if(Auth::guard('dosen')->check())
                         <a class="nav-link {{ Request::routeIs('pesan.*') ? 'active' : '' }}" 

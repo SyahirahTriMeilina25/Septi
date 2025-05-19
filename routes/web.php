@@ -56,12 +56,22 @@ Route::middleware(['auth:mahasiswa,dosen'])->group(function () {
         Route::put('/profil/update', 'update')->name('profile.update');
         Route::delete('/profil/remove', 'remove')->name('profile.remove');
     });
+
+    // Route untuk alumni
+    Route::get('/alumni', function () {
+        return view('bimbingan.mahasiswa.alumni');
+    })->name('alumni');
+    Route::get('/alumni/profil', function () {
+        return view('bimbingan.mahasiswa.alumni');
+    })->name('alumni.profil');
+    Route::get('/alumni/peta', function () {
+        return view('bimbingan.mahasiswa.peta-alumni');
+    })->name('alumni.peta');
 });
 
 // Route untuk mahasiswa
 Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () {
     // Route view biasa
-
     Route::controller(MahasiswaController::class)->group(function () {
         Route::get('/usulanbimbingan', 'index')->name('mahasiswa.usulanbimbingan');
         Route::post('/usulanbimbingan/selesai/{id}', 'selesaiBimbingan')->name('mahasiswa.selesaibimbingan');
@@ -90,7 +100,6 @@ Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () 
 // Route untuk dosen
 Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
     // Route view biasa
-
     Route::controller(DosenController::class)->group(function () {
         Route::get('/persetujuan', 'index')->name('dosen.persetujuan');
         Route::get('/terimausulanbimbingan/{id}', 'getDetailBimbingan')->name('dosen.detailbimbingan');
