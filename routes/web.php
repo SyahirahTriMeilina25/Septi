@@ -90,6 +90,9 @@ Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () 
     Route::post('/alumni-step1', [MahasiswaController::class, 'biodata_step_store'])->name('mahasiswa.alumni-step1');
     Route::post('/alumni-step2', [MahasiswaController::class, 'kuisioner_wajib_step_store'])->name('mahasiswa.alumni-step2');
     Route::post('/alumni-step3', [MahasiswaController::class, 'kuisioner_lainnya_step_store'])->name('mahasiswa.alumni-step3');
+    Route::post('/update-profil', [MahasiswaController::class, 'input_profil'])->name('mahasiswa.update-profil');
+    Route::post('/generate-cv', [MahasiswaController::class, 'generateCV'])->name('alumni.generate-cv');
+    Route::get('/download-cv', [MahasiswaController::class, 'downloadCV'])->name('alumni.download-cv');
 });
 
 // Route untuk dosen

@@ -430,7 +430,7 @@
     </div>
 
     <!-- Grafik Kompetensi Alumni -->
-    <div class="col-md-12 mb-4">
+    <div class="col-md-12">
         <div class="card shadow">
             <div class="card-header bg-card-gradient text-white p-3">
                 <h5 class="mb-0">Kompetensi Alumni</h5>

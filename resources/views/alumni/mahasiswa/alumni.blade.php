@@ -8,6 +8,12 @@
     $activeTab = request()->get('tab', 'form-alumni'); // default tab
 @endphp
 
+<style>
+    .bg-card-gradient {
+        background: linear-gradient(to right,#3875B6, #37C3F4);
+    }
+</style>
+
 <div class="container mt-5">
     <h1 class="mb-2 gradient-text fw-bold">Alumni</h1>
 
@@ -33,6 +39,12 @@
                         </a>
                     </li>
                 @endif
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link px-4 py-3 {{ $activeTab === 'profil' ? 'active' : '' }}"
+                       href="{{ request()->url() }}?tab=profil" role="tab">
+                       Profil
+                    </a>
+                </li>
                 <li class="nav-item" role="presentation">
                     <a class="nav-link px-4 py-3 {{ $activeTab === 'performa-alumni' ? 'active' : '' }}"
                        href="{{ request()->url() }}?tab=performa-alumni" role="tab">
@@ -62,6 +74,10 @@
                             @include('alumni.mahasiswa.form-alumni')
                         </div>
                     @endif
+                @elseif ($activeTab === 'profil')
+                    <div class="tab-pane fade show active" id="data" role="tabpanel">
+                        @include('alumni.mahasiswa.profil')
+                    </div>
                 @elseif ($activeTab === 'performa-alumni')
                     <div class="tab-pane fade show active" id="data" role="tabpanel">
                         @include('alumni.mahasiswa.performa-alumni')

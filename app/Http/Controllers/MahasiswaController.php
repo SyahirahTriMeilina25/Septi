@@ -3,13 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alumni;
+use App\Models\Mahasiswa;
+use App\Models\Profil;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Models\UsulanBimbingan;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class MahasiswaController extends Controller
 {
@@ -224,7 +229,12 @@ class MahasiswaController extends Controller
     {
         $user = Auth::guard('mahasiswa')->user();
         $alumni = Alumni::where('user_nim', $user->nim)->first();
-        
+        $profil = Profil::where('user_nim', $user->nim)->first();
+
+        $pengalaman = json_decode($profil->pengalaman ?? '[]', true);
+        $pendidikan = json_decode($profil->pendidikan ?? '[]', true);
+        $organisasi = json_decode($profil->organisasi ?? '[]', true);
+
         // Get query parameters
         $search = request()->get('search', '');
         $sort = request()->get('sort', 'created_at');
@@ -272,7 +282,7 @@ class MahasiswaController extends Controller
 
         // Redirect logic
         if ($isAllStepsComplete && $currentTab === 'form-alumni') {
-            return redirect('/alumni?tab=performa-alumni');
+            return redirect('/alumni?tab=profil');
         }
 
         if ($currentTab === 'form-alumni') {
@@ -597,6 +607,7 @@ class MahasiswaController extends Controller
         return view('alumni.mahasiswa.alumni')->with([
             'user' => $user,
             'alumni' => $alumni,
+            'profil' => $profil,
             'allAlumni' => $allAlumni,
             'provinces' => $provinces,
             'regencies' => $regencies,
@@ -629,7 +640,10 @@ class MahasiswaController extends Controller
             'totalPendidikanSesuaiPekerjaan' => $totalPendidikanSesuaiPekerjaan,
             'metodePembelajaran' => $metodePembelajaran,
             'kompetensiAlumni' => $kompetensiAlumni,
-            'kompetensiRadar' => $kompetensiRadar
+            'kompetensiRadar' => $kompetensiRadar,
+            'pengalaman' => $pengalaman,
+            'pendidikan' => $pendidikan,
+            'organisasi' => $organisasi,
         ]);
     }
 
@@ -703,7 +717,6 @@ class MahasiswaController extends Controller
                 ->withInput()
                 ->with('error', $errorMessage);
         }
-
     }
 
     public function kuisioner_wajib_step_store(Request $request)
@@ -1186,12 +1199,337 @@ class MahasiswaController extends Controller
 
             $alumni->update($updateData);
 
-            return redirect('/alumni?tab=performa-alumni')->with('success', 'Data kuisioner berhasil disubmit.');
+            return redirect('/alumni?tab=profil')->with('success', 'Data kuisioner berhasil disubmit.');
         } catch (\Exception $e) {
             return redirect()
                 ->back()
                 ->withInput()
                 ->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
         }
+    }
+
+    public function input_profil(Request $request)
+    {
+        try {
+            $user = Auth::guard('mahasiswa')->user();
+            
+            // Filter array kosong sebelum validasi
+            $requestData = $request->all();
+            
+            // Filter pengalaman - hapus item yang semua field utamanya kosong
+            if (isset($requestData['pengalaman'])) {
+                $requestData['pengalaman'] = array_filter($requestData['pengalaman'], function($item) {
+                    return !empty($item['nama_perusahaan']) || !empty($item['jabatan']);
+                });
+            }
+            
+            // Filter pendidikan - hapus item yang semua field utamanya kosong
+            if (isset($requestData['pendidikan'])) {
+                $requestData['pendidikan'] = array_filter($requestData['pendidikan'], function($item) {
+                    return !empty($item['nama_pendidikan']) || !empty($item['tingkat_pendidikan']);
+                });
+            }
+            
+            // Filter organisasi - hapus item yang semua field utamanya kosong
+            if (isset($requestData['organisasi'])) {
+                $requestData['organisasi'] = array_filter($requestData['organisasi'], function($item) {
+                    return !empty($item['nama_organisasi']) || !empty($item['posisi']);
+                });
+            }
+            
+            // Buat request baru dengan data yang sudah difilter
+            $filteredRequest = new Request($requestData);
+            $filteredRequest->setMethod($request->getMethod());
+            
+            $validated = $filteredRequest->validate([
+                'nama' => 'nullable|string|max:255',
+                'email' => 'nullable|email|max:255',
+                'no_telepon' => 'nullable|numeric|digits_between:10,15',
+                'linkedin' => 'nullable|url|max:255',
+                'portfolio' => 'nullable|url|max:255',
+                'deskripsi_diri' => 'nullable|string|min:50|max:1000',
+                'hard_skill' => 'nullable|string|min:10|max:500',
+                'soft_skill' => 'nullable|string|min:10|max:500',
+                'foto' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
+
+                // Validasi array pengalaman - hanya untuk item yang tidak kosong
+                'pengalaman' => 'nullable|array',
+                'pengalaman.*.nama_perusahaan' => 'required|string|max:255',
+                'pengalaman.*.jabatan' => 'required|string|max:255',
+                'pengalaman.*.lokasi_perusahaan' => 'nullable|string|max:255',
+                'pengalaman.*.deskripsi_perusahaan' => 'nullable|string|max:1000',
+                'pengalaman.*.tanggal_mulai' => 'nullable|date',
+                'pengalaman.*.tanggal_selesai' => 'nullable|date|after_or_equal:pengalaman.*.tanggal_mulai',
+                'pengalaman.*.masih_bekerja' => 'nullable|boolean',
+                'pengalaman.*.portofolio_prestasi' => 'nullable|array',
+                'pengalaman.*.portofolio_prestasi.*' => 'string|max:255',
+
+                // Validasi array pendidikan - hanya untuk item yang tidak kosong
+                'pendidikan' => 'nullable|array',
+                'pendidikan.*.nama_pendidikan' => 'required|string|max:255',
+                'pendidikan.*.tingkat_pendidikan' => 'required|string|in:SMA/SMK,D3,S1,S2,S3',
+                'pendidikan.*.lokasi_pendidikan' => 'nullable|string|max:255',
+                'pendidikan.*.tanggal_mulai' => 'nullable|date',
+                'pendidikan.*.tanggal_selesai' => 'nullable|date|after_or_equal:pendidikan.*.tanggal_mulai',
+                'pendidikan.*.grade' => 'nullable|numeric|between:0.00,4.00',
+                'pendidikan.*.aktivitas_pencapaian' => 'nullable|array',
+                'pendidikan.*.aktivitas_pencapaian.*' => 'string|max:255',
+
+                // Validasi array organisasi - hanya untuk item yang tidak kosong
+                'organisasi' => 'nullable|array',
+                'organisasi.*.nama_organisasi' => 'required|string|max:255',
+                'organisasi.*.posisi' => 'required|string|max:255',
+                'organisasi.*.lokasi_organisasi' => 'nullable|string|max:255',
+                'organisasi.*.deskripsi_organisasi' => 'nullable|string|max:1000',
+                'organisasi.*.tanggal_mulai' => 'nullable|date',
+                'organisasi.*.tanggal_selesai' => 'nullable|date|after_or_equal:organisasi.*.tanggal_mulai',
+                'organisasi.*.masih_aktif' => 'nullable|boolean',
+                'organisasi.*.deskripsi_pekerjaan' => 'nullable|array',
+                'organisasi.*.deskripsi_pekerjaan.*' => 'string|max:255',
+            ], [
+                'nama.string' => 'Nama lengkap harus berupa teks.',
+                'nama.max' => 'Nama lengkap maksimal 255 karakter.',
+                'email.email' => 'Format email tidak valid.',
+                'email.max' => 'Email maksimal 255 karakter.',
+                'no_telepon.numeric' => 'Nomor telepon harus berupa angka.',
+                'no_telepon.digits_between' => 'Nomor telepon harus antara 10 sampai 15 digit.',
+                'linkedin.url' => 'Format LinkedIn URL tidak valid. Contoh: https://linkedin.com/in/username',
+                'linkedin.max' => 'LinkedIn URL maksimal 255 karakter.',
+                'portfolio.url' => 'Format Portfolio URL tidak valid. Contoh: https://example.com',
+                'portfolio.max' => 'Portfolio URL maksimal 255 karakter.',
+                'deskripsi_diri.string' => 'Deskripsi diri harus berupa teks.',
+                'deskripsi_diri.min' => 'Deskripsi diri minimal 50 karakter.',
+                'deskripsi_diri.max' => 'Deskripsi diri maksimal 1000 karakter.',
+                'hard_skill.string' => 'Hard skills harus berupa teks.',
+                'hard_skill.min' => 'Hard skills minimal 10 karakter.',
+                'hard_skill.max' => 'Hard skills maksimal 500 karakter.',
+                'soft_skill.string' => 'Soft skills harus berupa teks.',
+                'soft_skill.min' => 'Soft skills minimal 10 karakter.',
+                'soft_skill.max' => 'Soft skills maksimal 500 karakter.',
+                'foto.image' => 'File yang diupload harus berupa gambar.',
+                'foto.mimes' => 'Format foto harus: jpeg, jpg, png, atau gif.',
+                'foto.max' => 'Ukuran foto maksimal 2MB.',
+
+                // message validasi array pengalaman
+                'pengalaman.*.nama_perusahaan.required' => 'Nama perusahaan wajib diisi.',
+                'pengalaman.*.jabatan.required' => 'Jabatan wajib diisi.',
+                'pengalaman.*.tanggal_mulai.date' => 'Tanggal mulai harus berupa tanggal.',
+                'pengalaman.*.tanggal_selesai.date' => 'Tanggal selesai harus berupa tanggal.',
+                'pengalaman.*.tanggal_selesai.after_or_equal' => 'Tanggal selesai harus sama atau setelah tanggal mulai.',
+                'pengalaman.*.masih_bekerja.boolean' => 'Masih bekerja harus bernilai true atau false.',
+                'pengalaman.*.portofolio_prestasi.array' => 'Portofolio prestasi harus berupa array.',
+                'pengalaman.*.portofolio_prestasi.*.string' => 'Portofolio prestasi harus berupa teks.',
+                'pengalaman.*.portofolio_prestasi.*.max' => 'Portofolio prestasi maksimal 255 karakter.',
+
+                // message validasi array pendidikan
+                'pendidikan.*.nama_pendidikan.required' => 'Nama pendidikan wajib diisi.',
+                'pendidikan.*.nama_pendidikan.string' => 'Nama pendidikan harus berupa teks.',
+                'pendidikan.*.nama_pendidikan.max' => 'Nama pendidikan maksimal 255 karakter.',
+                'pendidikan.*.lokasi_pendidikan.string' => 'Lokasi pendidikan harus berupa teks.',
+                'pendidikan.*.lokasi_pendidikan.max' => 'Lokasi pendidikan maksimal 255 karakter.',
+                'pendidikan.*.tanggal_mulai.date' => 'Tanggal mulai harus berupa tanggal.',
+                'pendidikan.*.tanggal_selesai.date' => 'Tanggal selesai harus berupa tanggal.',
+                'pendidikan.*.tanggal_selesai.after_or_equal' => 'Tanggal selesai harus sama atau setelah tanggal mulai.',
+                'pendidikan.*.tingkat_pendidikan.required' => 'Tingkat pendidikan wajib diisi.',
+                'pendidikan.*.tingkat_pendidikan.string' => 'Tingkat pendidikan harus berupa teks.',
+                'pendidikan.*.tingkat_pendidikan.in' => 'Tingkat pendidikan harus salah satu dari: SMA/SMK, D3, S1, S2, S3.',
+                'pendidikan.*.grade.numeric' => 'Grade/IPK harus berupa angka.',
+                'pendidikan.*.grade.between' => 'Grade/IPK harus antara 0.00 sampai 4.00.',
+                'pendidikan.*.aktivitas_pencapaian.array' => 'Aktivitas & pencapaian harus berupa array.',
+                'pendidikan.*.aktivitas_pencapaian.*.string' => 'Aktivitas & pencapaian harus berupa teks.',
+                'pendidikan.*.aktivitas_pencapaian.*.max' => 'Aktivitas & pencapaian maksimal 255 karakter.',
+
+                // message validasi array organisasi
+                'organisasi.*.nama_organisasi.required' => 'Nama organisasi wajib diisi.',
+                'organisasi.*.nama_organisasi.string' => 'Nama organisasi harus berupa teks.',
+                'organisasi.*.nama_organisasi.max' => 'Nama organisasi maksimal 255 karakter.',
+                'organisasi.*.posisi.required' => 'Posisi wajib diisi.',
+                'organisasi.*.posisi.string' => 'Posisi harus berupa teks.',
+                'organisasi.*.posisi.max' => 'Posisi maksimal 255 karakter.',
+                'organisasi.*.lokasi_organisasi.string' => 'Lokasi organisasi harus berupa teks.',
+                'organisasi.*.lokasi_organisasi.max' => 'Lokasi organisasi maksimal 255 karakter.',
+                'organisasi.*.deskripsi_organisasi.string' => 'Deskripsi organisasi harus berupa teks.',
+                'organisasi.*.deskripsi_organisasi.max' => 'Deskripsi organisasi maksimal 1000 karakter.',
+                'organisasi.*.tanggal_mulai.date' => 'Tanggal mulai harus berupa tanggal.',
+                'organisasi.*.tanggal_selesai.date' => 'Tanggal selesai harus berupa tanggal.',
+                'organisasi.*.tanggal_selesai.after_or_equal' => 'Tanggal selesai harus sama atau setelah tanggal mulai.',
+                'organisasi.*.masih_aktif.boolean' => 'Status masih aktif harus benar atau salah.',
+                'organisasi.*.deskripsi_pekerjaan.array' => 'Deskripsi pekerjaan harus berupa array.',
+                'organisasi.*.deskripsi_pekerjaan.*.string' => 'Deskripsi pekerjaan harus berupa teks.',
+                'organisasi.*.deskripsi_pekerjaan.*.max' => 'Deskripsi pekerjaan maksimal 255 karakter.',
+            ]);
+
+            $profil = Profil::firstOrNew(['user_nim' => $user->nim]);
+
+            // Handle file upload
+            if ($request->hasFile('foto')) {
+                $foto = $request->file('foto');
+                $fileName = time().'_'.Str::random(10).'.'.$foto->getClientOriginalExtension();
+                $fotoPath = $foto->storeAs('profil_foto', $fileName, 'public');
+                
+                // Delete old photo if exists
+                if ($profil->foto) {
+                    Storage::disk('public')->delete($profil->foto);
+                }
+                
+                $profil->foto = $fotoPath;
+            }
+
+            $pengalamanData = [];
+            if (isset($validated['pengalaman']) && !empty($validated['pengalaman'])) {
+                foreach ($validated['pengalaman'] as $id => $item) {
+                    $pengalamanItem = [
+                        'jabatan' => $item['jabatan'] ?? null,
+                        'tanggal_mulai' => $item['tanggal_mulai'] ?? null,
+                        'nama_perusahaan' => $item['nama_perusahaan'] ?? null,
+                        'tanggal_selesai' => $item['tanggal_selesai'] ?? null,
+                        'masih_bekerja' => $item['masih_bekerja'] ?? 0,
+                        'lokasi_perusahaan' => $item['lokasi_perusahaan'] ?? null,
+                        'deskripsi_perusahaan' => $item['deskripsi_perusahaan'] ?? null,
+                        'portofolio_prestasi' => isset($item['portofolio_prestasi']) 
+                            ? array_values(array_filter($item['portofolio_prestasi'])) 
+                            : [] 
+                    ];
+                    $pengalamanData[] = $pengalamanItem;
+                }
+            }
+
+            $pendidikanData = [];
+            if (isset($validated['pendidikan']) && !empty($validated['pendidikan'])) {
+                foreach ($validated['pendidikan'] as $id => $item) {
+                    $pendidikanItem = [
+                        'nama_pendidikan' => $item['nama_pendidikan'] ?? null,
+                        'lokasi_pendidikan' => $item['lokasi_pendidikan'] ?? null,
+                        'tanggal_mulai' => $item['tanggal_mulai'] ?? null,
+                        'tanggal_selesai' => $item['tanggal_selesai'] ?? null,
+                        'tingkat_pendidikan' => $item['tingkat_pendidikan'] ?? null,
+                        'grade' => $item['grade'] ?? null,
+                        'aktivitas_pencapaian' => isset($item['aktivitas_pencapaian'])
+                            ? array_values(array_filter($item['aktivitas_pencapaian']))
+                            : []
+                    ];
+                    $pendidikanData[] = $pendidikanItem;
+                }
+            }
+
+            $organisasiData = [];
+            if (isset($validated['organisasi']) && !empty($validated['organisasi'])) {
+                foreach ($validated['organisasi'] as $id => $item) {
+                    $organisasiItem = [
+                        'nama_organisasi' => $item['nama_organisasi'] ?? null,
+                        'posisi' => $item['posisi'] ?? null,
+                        'lokasi_organisasi' => $item['lokasi_organisasi'] ?? null,
+                        'deskripsi_organisasi' => $item['deskripsi_organisasi'] ?? null,
+                        'tanggal_mulai' => $item['tanggal_mulai'] ?? null,
+                        'tanggal_selesai' => $item['tanggal_selesai'] ?? null,
+                        'masih_aktif' => $item['masih_aktif'] ?? 0,
+                        'deskripsi_pekerjaan' => isset($item['deskripsi_pekerjaan']) 
+                            ? array_values(array_filter($item['deskripsi_pekerjaan'])) 
+                            : []
+                    ];
+                    $organisasiData[] = $organisasiItem;
+                }
+            }
+
+            // Update data
+            $profil->user_nim = $user->nim;
+            $profil->nama = $validated['nama'];
+            $profil->email = $validated['email'];
+            $profil->no_telepon = $validated['no_telepon'] ?? null;
+            $profil->linkedin = $validated['linkedin'] ?? null;
+            $profil->portfolio = $validated['portfolio'] ?? null;
+            $profil->deskripsi_diri = $validated['deskripsi_diri'] ?? null;
+            $profil->hard_skill = $validated['hard_skill'] ?? null;
+            $profil->soft_skill = $validated['soft_skill'] ?? null;
+            $profil->pengalaman = !empty($pengalamanData) ? json_encode($pengalamanData) : null;
+            $profil->pendidikan = !empty($pendidikanData) ? json_encode($pendidikanData) : null;
+            $profil->organisasi = !empty($organisasiData) ? json_encode($organisasiData) : null;
+
+            $profil->save();
+            
+            return back()->with('success', 'Berhasil menyimpan profil.');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $errors = $e->validator->errors()->all();
+            $errorType = collect($errors)->contains(fn($e) => str_contains($e, 'wajib diisi')) 
+                ? 'Lengkapi semua data yang diperlukan.' 
+                : 'Isi data sesuai aturan yang ditetapkan.';
+
+            return back()->withErrors($e->validator)->withInput()->with('error', $errorType);
+
+        } catch (\Exception $e) {
+            \Log::error('ProfilController error: '.$e->getMessage());
+            return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data.');
+        }
+    }
+
+    public function generateCV()
+    {
+        try {
+            $user = auth()->user();
+            $profil = Profil::where('user_nim', $user->nim)->first(); 
+
+            if ($profil->cv_path && Storage::disk('public')->exists($profil->cv_path)) {
+                Storage::disk('public')->delete($profil->cv_path);
+            }
+            
+            // Format data untuk CV
+            $data = [
+                'nama' => $profil->nama,
+                'nim' => $profil->user_nim,
+                'email' => $profil->email,
+                'no_telepon' => $profil->no_telepon,
+                'linkedin' => $profil->linkedin,
+                'portfolio' => $profil->portfolio,
+                'deskripsi_diri' => $profil->deskripsi_diri,
+                'hard_skill' => $profil->hard_skill ? explode(',', $profil->hard_skill) : [],
+                'soft_skill' => $profil->soft_skill ? explode(',', $profil->soft_skill) : [],
+                'pengalaman' => $profil->pengalaman ? json_decode($profil->pengalaman, true) : [],
+                'pendidikan' => $profil->pendidikan ? json_decode($profil->pendidikan, true) : [],
+                'organisasi' => $profil->organisasi ? json_decode($profil->organisasi, true) : [],
+            ];
+
+            // Generate PDF
+            $pdf = Pdf::loadView('pdf.cv', $data)
+                ->setOption([
+                    'fontDir' => public_path('/fonts'),
+                    'fontCache' => public_path('/fonts'),
+                    'defaultFont' => 'Arial',
+                    'isRemoteEnabled' => true,
+                ]);
+            
+            $pdf->setPaper('a4', 'portrait');
+
+            $filename = 'cv-' . Str::slug($user->name) . '-' . time() . '.pdf';
+            $path = 'cv/' . $filename;  
+
+            Storage::disk('public')->put($path, $pdf->output());
+
+            $profil->cv_path = $path;
+            $profil->save();
+
+            return response()->json([
+                'success' => true,
+                'path' => Storage::url($path)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat CV: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function downloadCv()
+    {
+        $user = auth()->user();
+        $profil = Profil::where('user_nim', $user->nim)->first();
+
+        if (!Storage::disk('public')->exists($profil->cv_path)) {
+            return redirect()->back()->with('error', 'File CV tidak ditemukan di storage.');
+        }
+        
+        return Storage::disk('public')->download($profil->cv_path, 'cv_' . $user->name . '.pdf');        
     }
 }

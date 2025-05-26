@@ -1,8 +1,8 @@
 <!-- Step 3: Kuisioner Lainnya -->
 <div class="form-step active" id="kuisioner-lainnya-step">
-    <div class="card border-0 shadow-sm rounded-4 mb-4">
-        <div class="card-header bg-gradient-primary-subtle p-3">
-            <h5 class="card-title mb-0 fw-bold">Kuisioner Lainnya</h5>
+    <div class="card border-0 shadow-lg rounded-3 mb-4">
+        <div class="card-header bg-card-gradient p-3 rounded-top-3">
+            <h5 class="card-title mb-0 fw-bold text-white">Kuisioner Lainnya</h5>
         </div>
         <div class="card-body p-4">
             <div class="mb-4">
