@@ -146,14 +146,4 @@ class Alumni extends Model
     {
         return $this->belongsTo(Mahasiswa::class, 'user_nim', 'nim');
     }
-
-    public function pendidikan()
-    {
-        return $this->hasMany(Pendidikan::class, 'alumni_id', 'id');
-    }
-
-    public function pengalaman()
-    {
-        return $this->hasMany(Pengalaman::class, 'alumni_id', 'id');
-    }
 }

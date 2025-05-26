@@ -172,10 +172,6 @@
         height: 3px;
     }
 
-    .bg-card-gradient {
-        background: linear-gradient(to right,#3875B6, #37C3F4);
-    }
-
     .btn-gradient-success, .btn-gradient-second {
         background: linear-gradient(to right, #3875B6, #37C3F4);
         border: none;

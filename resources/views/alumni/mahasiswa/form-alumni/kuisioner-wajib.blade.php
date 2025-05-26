@@ -1,7 +1,7 @@
 <!-- Step 2: Kuisioner Wajib -->
 <div class="form-step active" id="kuisioner-wajib-step">
-    <div class="card border-0 shadow-lg rounded-4 mb-4">
-        <div class="card-header bg-card-gradient p-4 rounded-top-4">
+    <div class="card border-0 shadow-lg rounded-3 mb-4">
+        <div class="card-header bg-card-gradient p-3 rounded-top-3">
             <h5 class="card-title mb-0 fw-bold text-white">Kuisioner Wajib</h5>
         </div>
         <div class="card-body p-4">
