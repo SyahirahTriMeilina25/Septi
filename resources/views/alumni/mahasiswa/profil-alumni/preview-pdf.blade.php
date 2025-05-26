@@ -1,7 +1,7 @@
 @php
     use App\Models\Profil;
 
-    $user = auth()->user();
+    $user = Auth::guard('mahasiswa')->user();
     $profil = $user ? Profil::where('user_nim', $user->nim)->first() : null;
 @endphp
 

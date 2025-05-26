@@ -1466,7 +1466,7 @@ class MahasiswaController extends Controller
     public function generateCV()
     {
         try {
-            $user = auth()->user();
+            $user = Auth::guard('mahasiswa')->user();
             $profil = Profil::where('user_nim', $user->nim)->first(); 
 
             if ($profil->cv_path && Storage::disk('public')->exists($profil->cv_path)) {
@@ -1500,7 +1500,7 @@ class MahasiswaController extends Controller
             
             $pdf->setPaper('a4', 'portrait');
 
-            $filename = 'cv-' . Str::slug($user->name) . '-' . time() . '.pdf';
+            $filename = 'cv-' . Str::slug($user->nama) . '-' . time() . '.pdf';
             $path = 'cv/' . $filename;  
 
             Storage::disk('public')->put($path, $pdf->output());
@@ -1523,13 +1523,13 @@ class MahasiswaController extends Controller
 
     public function downloadCv()
     {
-        $user = auth()->user();
+        $user = Auth::guard('mahasiswa')->user();
         $profil = Profil::where('user_nim', $user->nim)->first();
 
         if (!Storage::disk('public')->exists($profil->cv_path)) {
             return redirect()->back()->with('error', 'File CV tidak ditemukan di storage.');
         }
         
-        return Storage::disk('public')->download($profil->cv_path, 'cv_' . $user->name . '.pdf');        
+        return Storage::disk('public')->download($profil->cv_path, 'CV_' . $user->nama . '.pdf');        
     }
 }
