@@ -49,6 +49,10 @@ return [
             'driver' => 'session',
             'provider' => 'dosens',
         ],
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admin',
+        ],
     ],
 
     /*
@@ -81,6 +85,10 @@ return [
         'dosens' => [
             'driver' => 'eloquent',
             'model' => App\Models\Dosen::class,
+        ],
+        'admin' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin::class,
         ],
     ],
 
@@ -118,6 +126,12 @@ return [
         ],
         'dosen' => [
             'provider' => 'dosens',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        'admin' => [
+            'provider' => 'admin',
             'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,

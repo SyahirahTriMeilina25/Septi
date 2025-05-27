@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
             KonsentrasiSeeder::class,
             DosenSeeder::class,
             MahasiswaSeeder::class,
-            // AlumniSeeder::class
+            AdminSeeder::class
         ]);
     }
 }

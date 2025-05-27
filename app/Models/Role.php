@@ -26,4 +26,10 @@ class Role extends Model
     {
         return $this->hasMany(Mahasiswa::class,'role_id', 'id');
     }
+
+    // Relasi ke Admin
+    public function admin()
+    {
+        return $this->hasMany(Admin::class,'role_id', 'id');
+    }
 }
