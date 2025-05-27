@@ -80,11 +80,23 @@
                                 <td>{{ $item->email }}</td>
                                 <td>{{ $item->tahun_lulus ?: '-' }}</td>
                                 <td class="text-center">
-                                    <a href="" 
-                                       class="btn btn-sm btn-info text-white border-0" 
-                                       title="Detail" style="background-color: #17a2b8">
+                                    <button type="button" 
+                                            class="btn btn-sm btn-info text-white border-0 btn-detail" 
+                                            title="Detail" 
+                                            style="background-color: #17a2b8"
+                                            data-id="{{ $item->id ?? '' }}"
+                                            data-nama="{{ $item->nama ?? '' }}"
+                                            data-email="{{ $item->email ?? '' }}"
+                                            data-user-nim="{{ $item->user_nim ?? '' }}"
+                                            data-alamat="{{ $item->alamat ?? '' }}"
+                                            data-no-telepon="{{ $item->no_telepon ?? '' }}"
+                                            data-tahun-lulus="{{ $item->tahun_lulus ?? '' }}"
+                                            data-lokasi-pekerjaan-provinsi="{{ $item->lokasi_pekerjaan_provinsi ?? '' }}"
+                                            data-lokasi-pekerjaan-kabupaten="{{ $item->lokasi_pekerjaan_kabupaten ?? '' }}"
+                                            data-nama-perusahaan="{{ $item->nama_perusahaan ?? '' }}"
+                                            data-created-at="{{ $item->created_at ? $item->created_at->format('d/m/Y H:i') : '' }}">
                                         <i class="fas fa-circle-info"></i>
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
                         @empty
@@ -144,8 +156,160 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Detail Alumni -->
+    <div class="modal fade" id="modalDetailAlumni" tabindex="-1" aria-labelledby="modalDetailAlumniLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-card-gradient text-white">
+                    <h5 class="modal-title" id="modalDetailAlumniLabel">
+                        <i class="fas fa-user-graduate me-2"></i>Detail Alumni
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">Nama Lengkap</label>
+                                <p class="mb-0" id="modal-nama">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">Email</label>
+                                <p class="mb-0" id="modal-email">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">NIM</label>
+                                <p class="mb-0" id="modal-user-nim">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">Tahun Lulus</label>
+                                <p class="mb-0" id="modal-tahun-lulus">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">No. Telepon</label>
+                                <p class="mb-0" id="modal-no-telepon">-</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">Alamat</label>
+                                <p class="mb-0" id="modal-alamat">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">Nama Perusahaan</label>
+                                <p class="mb-0" id="modal-nama-perusahaan">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">Lokasi Pekerjaan (Provinsi)</label>
+                                <p class="mb-0" id="modal-lokasi-pekerjaan-provinsi">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">Lokasi Pekerjaan (Kabupaten)</label>
+                                <p class="mb-0" id="modal-lokasi-pekerjaan-kabupaten">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-muted">Tanggal Registrasi</label>
+                                <p class="mb-0" id="modal-created-at">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     @endif
 </div>
+
+<style>
+/* Smooth animations for modal */
+.modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+    transform: translate(0, -50px);
+}
+
+.modal.show .modal-dialog {
+    transform: none;
+}
+
+/* Hover effects for detail button */
+.btn-detail {
+    transition: all 0.3s ease;
+}
+
+.btn-detail:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    background-color: #138496 !important;
+}
+
+/* Modal backdrop with smooth transition */
+.modal-backdrop {
+    transition: opacity 0.15s linear;
+}
+
+/* Custom modal content styling */
+.modal-content {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Loading animation for button */
+.btn-detail.loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.btn-detail.loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Form label styling */
+.form-label.fw-bold {
+    font-size: 0.875rem;
+    color: #6c757d !important;
+    margin-bottom: 0.25rem;
+}
+
+/* Modal body content styling */
+.modal-body p {
+    font-size: 1rem;
+    color: #212529;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.modal-body .mb-3:last-child p {
+    border-bottom: none;
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -164,6 +328,58 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500);
     });
 
+    // Handle detail button click
+    document.querySelectorAll('.btn-detail').forEach(button => {
+        button.addEventListener('click', function() {
+            // Add loading state
+            this.classList.add('loading');
+            
+            // Get data from button attributes
+            const data = {
+                nama: this.dataset.nama || '-',
+                email: this.dataset.email || '-',
+                userNim: this.dataset.userNim || '-',
+                tahunLulus: this.dataset.tahunLulus || '-',
+                noTelepon: this.dataset.noTelepon || '-',
+                alamat: this.dataset.alamat || '-',
+                namaPerusahaan: this.dataset.namaPerusahaan || '-',
+                lokasiPekerjaanProvinsi: this.dataset.lokasiPekerjaanProvinsi || '-',
+                lokasiPekerjaanKabupaten: this.dataset.lokasiPekerjaanKabupaten || '-',
+                createdAt: this.dataset.createdAt || '-'
+            };
+
+            // Simulate loading delay for smooth transition
+            setTimeout(() => {
+                // Remove loading state
+                this.classList.remove('loading');
+                
+                // Populate modal with data
+                populateModal(data);
+                
+                // Show modal with smooth transition
+                const modal = new bootstrap.Modal(document.getElementById('modalDetailAlumni'), {
+                    backdrop: 'static',
+                    keyboard: true
+                });
+                modal.show();
+            }, 300);
+        });
+    });
+
+    // Function to populate modal with alumni data
+    function populateModal(data) {
+        document.getElementById('modal-nama').textContent = data.nama;
+        document.getElementById('modal-email').textContent = data.email;
+        document.getElementById('modal-user-nim').textContent = data.userNim;
+        document.getElementById('modal-tahun-lulus').textContent = data.tahunLulus;
+        document.getElementById('modal-no-telepon').textContent = data.noTelepon;
+        document.getElementById('modal-alamat').textContent = data.alamat;
+        document.getElementById('modal-nama-perusahaan').textContent = data.namaPerusahaan;
+        document.getElementById('modal-lokasi-pekerjaan-provinsi').textContent = data.lokasiPekerjaanProvinsi;
+        document.getElementById('modal-lokasi-pekerjaan-kabupaten').textContent = data.lokasiPekerjaanKabupaten;
+        document.getElementById('modal-created-at').textContent = data.createdAt;
+    }
+
     // Function to update URL parameters
     function updateUrlParams(params) {
         const currentUrl = new URL(window.location.href);
@@ -179,5 +395,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         window.location.href = currentUrl.toString();
     }
+
+    // Enhanced modal event listeners for smooth animations
+    const modalElement = document.getElementById('modalDetailAlumni');
+    
+    modalElement.addEventListener('show.bs.modal', function() {
+        document.body.style.overflow = 'hidden';
+    });
+    
+    modalElement.addEventListener('hidden.bs.modal', function() {
+        document.body.style.overflow = 'auto';
+    });
 });
 </script>
