@@ -132,6 +132,9 @@ Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
             ->name('dosen.google.events')
             ->middleware(['auth:dosen']);
     });
+
+    Route::get('/dosen/alumni', [DosenController::class, 'get_dosen_alumni_view'])->name('dosen.alumni');
+    Route::post('/dosen/alumni/download', [DosenController::class, 'downloadData'])->name('dosen.alumni.download');
 });
 
 // Route debugging
