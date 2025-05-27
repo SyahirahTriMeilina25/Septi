@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -45,6 +46,15 @@ class AuthController extends Controller
             return redirect('/persetujuan');
         }
 
+        // Cek admin
+        $admin = Admin::where('nip', $identifier)->first();
+        if ($admin && Hash::check($password, $admin->password)) {
+            Auth::guard('admin')->login($admin);
+            session(['role' => 'admin']);
+            Log::info('Login berhasil untuk admin: ' . $admin->nip);
+            return redirect('/admin/alumni?tab=statistik-alumni');
+        }
+
         // Jika login gagal
         Log::warning('Login gagal untuk: ' . $identifier);
         return back()
@@ -60,6 +70,8 @@ class AuthController extends Controller
             Auth::guard('mahasiswa')->logout();
         } else if (Auth::guard('dosen')->check()) {
             Auth::guard('dosen')->logout();
+        } else if (Auth::guard('admin')->check()) {
+            Auth::guard('admin')->logout();
         }
         
         return redirect()->route('login');

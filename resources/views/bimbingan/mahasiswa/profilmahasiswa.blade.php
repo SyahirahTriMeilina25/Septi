@@ -136,7 +136,15 @@
 
 @section('content')
 <div class="container my-5">
-    <h1 class="mb-3 gradient-text fw-bold">{{ $role === 'mahasiswa' ? 'Profil Mahasiswa' : 'Profil Dosen' }}</h1>
+    @php
+        $label = [
+            'mahasiswa' => 'Profil Mahasiswa',
+            'dosen' => 'Profil Dosen',
+            'admin' => 'Profil Admin',
+        ][$role] ?? 'Profil Pengguna';
+    @endphp
+
+    <h1 class="mb-3 gradient-text fw-bold">{{ $label }}</h1>
     <hr>
     
     <div class="student-profile-container">
@@ -161,7 +169,7 @@
             <div class="profile-details">
                 <div class="detail-item">
                     <span class="detail-label">Program Studi</span>
-                    <span class="detail-value">{{ $profile->prodi->nama_prodi }}</span>
+                    <span class="detail-value">{{ $profile->prodi->nama_prodi ?? 'Teknik Informatika' }}</span>
                 </div>
                 @if($role === 'mahasiswa')
                     <div class="detail-item">

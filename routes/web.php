@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DosenController;
@@ -24,7 +25,7 @@ Route::get('/datausulanbimbingan', function () {
     return view('bimbingan.admin.datausulanbimbingan');
 });
 
-Route::middleware(['auth:mahasiswa,dosen'])->group(function () {
+Route::middleware(['auth:mahasiswa,dosen,admin'])->group(function () {
     Route::prefix('pesan')->group(function () {
 
         Route::get('/dashboardkonsultasi', function () {
@@ -135,6 +136,11 @@ Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
 
     Route::get('/dosen/alumni', [DosenController::class, 'get_dosen_alumni_view'])->name('dosen.alumni');
     Route::post('/dosen/alumni/download', [DosenController::class, 'downloadData'])->name('dosen.alumni.download');
+});
+
+Route::middleware(['auth:admin', 'checkRole:admin'])->group(function () {
+    Route::get('/admin/alumni', [AdminController::class, 'get_admin_alumni_view'])->name('admin.alumni');
+    Route::post('/admin/alumni/download', [AdminController::class, 'downloadData'])->name('admin.alumni.download');
 });
 
 // Route debugging

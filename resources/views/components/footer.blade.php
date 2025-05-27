@@ -3,6 +3,7 @@
         @php
             $tab = request()->get('tab');
             $developer = match ($tab) {
+                'statistik-alumni' => 'Adhitya Zanev Putra',
                 'profil' => 'Adhitya Zanev Putra',
                 'performa-alumni' => 'Adhitya Zanev Putra',
                 'form-alumni' => 'Adhitya Zanev Putra',

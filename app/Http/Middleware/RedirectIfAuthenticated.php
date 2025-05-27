@@ -21,6 +21,8 @@ class RedirectIfAuthenticated
                     return redirect()->route('mahasiswa.usulanbimbingan');
                 } elseif ($user instanceof Dosen) {
                     return redirect()->route('dosen.persetujuan');
+                } elseif ($user instanceof Admin) {
+                    return redirect()->route('admin.statistik-alumni');
                 }
             }
         }

@@ -22,6 +22,10 @@ class ProfilController extends Controller
             $profile = Auth::guard('dosen')->user();
             $role = 'dosen';
         } 
+        elseif (Auth::guard('admin')->check()) {
+            $profile = Auth::guard('admin')->user();
+            $role = 'admin';
+        }
         // Jika tidak terautentikasi di kedua guard
         else {
             return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu');
@@ -55,6 +59,11 @@ class ProfilController extends Controller
                 $profile = Auth::guard('dosen')->user();
                 $identifier = $profile->nip;
             } 
+            // Cek guard admin
+            elseif (Auth::guard('admin')->check()) {
+                $profile = Auth::guard('admin')->user();
+                $identifier = $profile->id;
+            }
             // Jika tidak terautentikasi di kedua guard
             else {
                 return redirect()->route('login')
@@ -97,6 +106,10 @@ class ProfilController extends Controller
             elseif (Auth::guard('dosen')->check()) {
                 $profile = Auth::guard('dosen')->user();
             } 
+            // Cek guard admin
+            elseif (Auth::guard('admin')->check()) {
+                $profile = Auth::guard('admin')->user();
+            }
             // Jika tidak terautentikasi di kedua guard
             else {
                 return redirect()->route('login')

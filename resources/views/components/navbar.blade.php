@@ -19,10 +19,12 @@
                         <a class="nav-link {{ Request::is('persetujuan') || Request::is('masukkanjadwal') || Request::is('riwayatdosen') || Request::is('editusulan') || Request::is('terimausulanbimbingan') ? 'active' : '' }}" 
                            style="font-weight: bold;" 
                            href="{{ url('/persetujuan') }}">RESERVASI</a>
-                    @else
+                    @elseif(Auth::guard('mahasiswa')->check())
                         <a class="nav-link {{ Request::is('usulanbimbingan') || Request::is('pilihjadwal') || Request::is('detaildaftar') || Request::is('riwayatmahasiswa') ? 'active' : '' }}" 
                            style="font-weight: bold;" 
                            href="{{ url('/usulanbimbingan') }}">RESERVASI</a>
+                    @elseif(Auth::guard('admin')->check())
+                        {{-- tidak ada menu RESERVASI --}}
                     @endif
                 </li>
                 {{-- <li class="nav-item">
@@ -41,10 +43,14 @@
                         <a class="nav-link {{ Request::is('dosen/alumni') ? 'active' : '' }}" 
                            style="font-weight: bold;" 
                            href="{{ url('/dosen/alumni?tab=statistik-alumni') }}">ALUMNI</a>
-                    @else
+                    @elseif(Auth::guard('mahasiswa')->check())
                         <a class="nav-link {{ Request::is('alumni') ? 'active' : '' }}" 
                            style="font-weight: bold;" 
                            href="{{ url('/alumni?tab=form-alumni') }}">ALUMNI</a>
+                    @elseif(Auth::guard('admin')->check())
+                        <a class="nav-link {{ Request::is('admin/alumni') ? 'active' : '' }}" 
+                            style="font-weight: bold;" 
+                            href="{{ url('/admin/alumni?tab=statistik-alumni') }}">ALUMNI</a>
                     @endif
                 </li>
             </ul>
