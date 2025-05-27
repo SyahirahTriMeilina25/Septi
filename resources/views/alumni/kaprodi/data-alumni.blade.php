@@ -13,11 +13,24 @@
                     </select>
                 </div>
 
-                <div class="d-flex align-items-center gap-2">
-                    <span>Cari</span>
-                    <input type="text" class="form-control form-control-sm" 
-                           id="search_input" placeholder="Cari alumni..." 
-                           value="{{ $currentSearch }}">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="dropdown">
+                        <button class="btn btn-success dropdown-toggle" type="button" id="downloadDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-download me-2"></i>Download Data
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="downloadDropdown">
+                            <li><a class="dropdown-item" href="#" onclick="downloadAllData('csv')">
+                                <i class="fas fa-file-csv text-info me-2"></i>Download CSV (.csv)
+                            </a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-flex align-items-center gap-2">
+                        <span>Cari</span>
+                        <input type="text" class="form-control form-control-sm" 
+                        id="search_input" placeholder="Cari alumni..." 
+                        value="{{ $currentSearch }}">
+                    </div>
                 </div>
             </div>
         </div>
@@ -222,7 +235,67 @@
 </div>
 
 <style>
-/* Smooth animations for modal */
+/* Download button styling */
+.dropdown-toggle {
+    transition: all 0.3s ease;
+}
+
+.dropdown-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.dropdown-item {
+    transition: all 0.2s ease;
+    padding: 0.75rem 1rem;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}
+
+/* Loading overlay for download */
+.download-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.download-spinner {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.spinner-border-custom {
+    width: 3rem;
+    height: 3rem;
+    border: 0.25em solid #dee2e6;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
 .modal.fade .modal-dialog {
     transition: transform 0.3s ease-out;
     transform: translate(0, -50px);
@@ -401,5 +474,89 @@ document.addEventListener('DOMContentLoaded', function() {
     modalElement.addEventListener('hidden.bs.modal', function() {
         document.body.style.overflow = 'auto';
     });
+
+    // Download functionality - Modified for Laravel integration
+    window.downloadAllData = function(format) {
+        // Show loading overlay
+        showDownloadLoading();
+        
+        // Create form for POST request
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("dosen.alumni.download") }}';
+        form.style.display = 'none';
+        
+        // Add CSRF token
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = '{{ csrf_token() }}';
+        form.appendChild(csrfInput);
+        
+        // Add format parameter
+        const formatInput = document.createElement('input');
+        formatInput.type = 'hidden';
+        formatInput.name = 'format';
+        formatInput.value = format;
+        form.appendChild(formatInput);
+        
+        // Add to body and submit
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+        
+        // Hide loading after a short delay
+        setTimeout(() => {
+            hideDownloadLoading();
+            showDownloadSuccess(format);
+        }, 1500);
+    };
+    
+    function showDownloadLoading() {
+        const overlay = document.createElement('div');
+        overlay.className = 'download-overlay';
+        overlay.id = 'downloadOverlay';
+        overlay.innerHTML = `
+            <div class="download-spinner">
+                <div class="spinner-border-custom mb-3 mx-auto"></div>
+                <h5>Memproses Download...</h5>
+                <p class="mb-0 text-muted">Mohon tunggu sebentar</p>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    }
+    
+    function hideDownloadLoading() {
+        const overlay = document.getElementById('downloadOverlay');
+        if (overlay) {
+            overlay.remove();
+        }
+    }
+    
+    function showDownloadSuccess(format) {
+        // Create success toast
+        const toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-white bg-success border-0';
+        toast.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000;';
+        toast.setAttribute('role', 'alert');
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-check-circle me-2"></i>
+                    File ${format.toUpperCase()} berhasil didownload!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Auto remove toast after 3 seconds
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.remove();
+            }
+        }, 3000);
+    }
 });
 </script>
