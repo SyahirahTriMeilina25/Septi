@@ -60,7 +60,7 @@ class MahasiswaSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
-        
+
             // Additional data - Angkatan 2015
             [
                 'nim' => '1507121502',
@@ -350,7 +350,7 @@ class MahasiswaSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
-        
+
             // Angkatan 2016
             [
                 'nim' => '1607123470',
@@ -520,7 +520,7 @@ class MahasiswaSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
-        
+
             // Angkatan 2017
             [
                 'nim' => '1707111438',
@@ -630,7 +630,7 @@ class MahasiswaSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
-        
+
             // Angkatan 2018
             [
                 'nim' => '1807113673',
@@ -686,6 +686,18 @@ class MahasiswaSeeder extends Seeder
                 'angkatan' => 2018,
                 'email' => 'rakhamuhammad50@gmail.com',
                 'password' => Hash::make('1807124745'),
+                'prodi_id' => 2,
+                'konsentrasi_id' => 1,
+                'role_id' => 2,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ],
+            [
+                'nim' => '2107114104',
+                'nama' => 'Adhitya Zanev Putra',
+                'angkatan' => 2021,
+                'email' => 'adhitya.zanev4104@student.unri.ac.id',
+                'password' => Hash::make('2107114104'),
                 'prodi_id' => 2,
                 'konsentrasi_id' => 1,
                 'role_id' => 2,

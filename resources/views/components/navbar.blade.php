@@ -14,7 +14,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item">
+                <li class="nav-item d-none">
                     @if(Auth::guard('dosen')->check())
                         <a class="nav-link {{ Request::is('persetujuan') || Request::is('masukkanjadwal') || Request::is('riwayatdosen') || Request::is('editusulan') || Request::is('terimausulanbimbingan') ? 'active' : '' }}" 
                            style="font-weight: bold;" 

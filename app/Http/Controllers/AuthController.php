@@ -34,7 +34,7 @@ class AuthController extends Controller
             Auth::guard('mahasiswa')->login($mahasiswa);
             session(['role' => 'mahasiswa']);
             Log::info('Login berhasil untuk mahasiswa: ' . $mahasiswa->nim);
-            return redirect('/usulanbimbingan');
+            return redirect('/alumni?tab=performa-alumni');
         }
 
         // Cek dosen
@@ -43,7 +43,7 @@ class AuthController extends Controller
             Auth::guard('dosen')->login($dosen);
             session(['role' => 'dosen']);
             Log::info('Login berhasil untuk dosen: ' . $dosen->nip);
-            return redirect('/persetujuan');
+            return redirect('/dosen/alumni?tab=performa-alumni');
         }
 
         // Cek admin
